@@ -13,6 +13,7 @@ from typing import Dict, List, Set, Tuple, Optional
 from hex_grid import HexGrid, HexCoord
 from puzzle_generator import PuzzleGenerator
 from solver import PuzzleSolver
+from advanced_solver import AdvancedPuzzleSolver
 from queen_placer import QueenPlacer
 from hex_queen_puzzle import (
     hex_to_pixel, draw_hexagon, draw_queen, get_region_color,
@@ -132,8 +133,8 @@ def demonstrate_queen_placement(grid_radius: int, seed: Optional[int] = None):
     plt.savefig("hex_regions.png")
     print("Hex regions visualization saved as 'hex_regions.png'")
     
-    print("\nSolving with only queen positions as clues...")
-    solver = PuzzleSolver(grid, num_queens)
+    print("\nSolving with only queen positions as clues using advanced solver...")
+    solver = AdvancedPuzzleSolver(grid, num_queens)
     solver.initialize_from_clues(queen_positions)
     start_time = time.time()
     solved = solver.solve()
@@ -147,8 +148,8 @@ def demonstrate_queen_placement(grid_radius: int, seed: Optional[int] = None):
         plt.savefig("queen_solution.png")
         print("Solution saved as 'queen_solution.png'")
         
-        print("\nChecking solution uniqueness...")
-        new_solver = PuzzleSolver(grid, num_queens)
+        print("\nChecking solution uniqueness with advanced solver...")
+        new_solver = AdvancedPuzzleSolver(grid, num_queens)
         new_solver.initialize_from_clues(queen_positions)
         solution_count = new_solver.count_solutions(2)
         
@@ -159,7 +160,7 @@ def demonstrate_queen_placement(grid_radius: int, seed: Optional[int] = None):
     else:
         print("Failed to solve the puzzle.")
         print(f"Solver metrics: {solver.get_metrics()}")
-        print("\nTrying to solve with additional clues...")
+        print("\nTrying to solve with additional clues using advanced solver...")
         
         num_extra_clues = max(3, len(grid.get_all_cells()) // 4)
         fixed_cells = {}
@@ -172,7 +173,7 @@ def demonstrate_queen_placement(grid_radius: int, seed: Optional[int] = None):
                 fixed_cells[cell] = region_id
         
         print(f"Adding {len(fixed_cells)} additional clues...")
-        new_solver = PuzzleSolver(grid, num_queens)
+        new_solver = AdvancedPuzzleSolver(grid, num_queens)
         new_solver.initialize_from_clues(queen_positions, fixed_cells)
         start_time = time.time()
         solved_with_clues = new_solver.solve()

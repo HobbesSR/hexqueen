@@ -12,6 +12,8 @@ from puzzle_generator import PuzzleGenerator
 class PuzzleSolver:
     """
     Solver for hexagonal grid puzzles using logical techniques and recursion.
+    This solver now supports an option to solve puzzles using only logical techniques,
+    without recursing. Set the logic_only flag in the solve() method to enforce this.
     """
     def __init__(self, grid: HexGrid, num_pieces: int):
         """
@@ -47,7 +49,11 @@ class PuzzleSolver:
             'memo_hits': 0,
             'time_taken': 0
         }
-    
+        
+        # New flags to control solving behavior
+        self.use_recursion = True
+        self.recursion_used = False
+
     def initialize_from_generator(self, generator: PuzzleGenerator):
         """
         Initialize the solver state from a puzzle generator.
@@ -137,7 +143,7 @@ class PuzzleSolver:
         for other_region in range(self.num_pieces):
             if other_region == region_id:
                 continue
-                
+            
             # Check if assigning this cell would isolate parts of other regions
             if not self.check_region_contiguity(other_region, cell):
                 return False
@@ -227,7 +233,7 @@ class PuzzleSolver:
         for cell, candidates in list(self.cell_candidates.items()):
             if cell in self.assigned_cells:
                 continue
-                
+            
             if len(candidates) == 1:
                 region_id = next(iter(candidates))
                 if self.assign_cell(cell, region_id):
@@ -253,7 +259,7 @@ class PuzzleSolver:
         for cell in list(self.cell_candidates.keys()):
             if cell in self.assigned_cells:
                 continue
-                
+            
             # Get neighbors
             neighbors = self.grid.get_neighbors(cell)
             
@@ -291,7 +297,7 @@ class PuzzleSolver:
         for cell in list(self.cell_candidates.keys()):
             if cell in self.assigned_cells or len(self.cell_candidates[cell]) <= 2:
                 continue
-                
+            
             # Get neighbors
             neighbors = [n for n in self.grid.get_neighbors(cell) 
                         if n not in self.assigned_cells]
@@ -300,7 +306,7 @@ class PuzzleSolver:
             for neighbor in neighbors:
                 if len(self.cell_candidates[neighbor]) <= 2:
                     continue
-                    
+                
                 # Find common candidates
                 common_candidates = self.cell_candidates[cell] & self.cell_candidates[neighbor]
                 if len(common_candidates) != 2:
@@ -425,7 +431,7 @@ class PuzzleSolver:
         for cell, candidates in self.cell_candidates.items():
             if cell in self.assigned_cells:
                 continue
-                
+            
             if 1 < len(candidates) < min_candidates:
                 min_candidates = len(candidates)
                 best_cell = cell
@@ -485,7 +491,7 @@ class PuzzleSolver:
             # Use a more relaxed constraint to avoid pruning valid solutions
             if len(self.region_cells[region_id]) > expected_size * 2.0:
                 continue
-                
+            
             # Save state
             saved_assigned = self.assigned_cells.copy()
             saved_region_cells = copy.deepcopy(self.region_cells)
@@ -505,9 +511,12 @@ class PuzzleSolver:
         self.memo[state_key] = False
         return False
     
-    def solve(self) -> bool:
+    def solve(self, logic_only: bool = False) -> bool:
         """
         Solve the puzzle using logical techniques and recursive backtracking if needed.
+        
+        Args:
+            logic_only: If True, only apply logical techniques without recursion.
         
         Returns:
             bool: True if a solution was found, False otherwise
@@ -529,10 +538,10 @@ class PuzzleSolver:
         self.solution = None
         self.solution_count = 0
         self.memo = {}
+        self.recursion_used = False
         
         try:
-            # Apply logical techniques first, but don't fail if they don't make progress
-            # Just use them to simplify the puzzle as much as possible
+            # Apply logical techniques first
             self.apply_logical_techniques()
             
             # Check if solved by logic alone
@@ -542,8 +551,13 @@ class PuzzleSolver:
                 self.metrics['time_taken'] = time.time() - start_time
                 return True
             
-            # Use recursive solver even if logical techniques didn't make progress
-            # This is more robust for puzzles that can't be solved by logic alone
+            # If only logical techniques are allowed, return failure
+            if logic_only:
+                self.metrics['time_taken'] = time.time() - start_time
+                return False
+            
+            # Use recursive solver
+            self.recursion_used = True
             result = self.recursive_solver()
             self.metrics['time_taken'] = time.time() - start_time
             return result
