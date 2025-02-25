@@ -1,0 +1,3 @@
+"""
+HexQueen package initialization.
+"""

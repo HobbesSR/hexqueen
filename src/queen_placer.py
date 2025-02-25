@@ -5,7 +5,7 @@ import random
 from typing import Dict, List, Set, Tuple, Optional
 from collections import defaultdict, deque
 
-from hex_grid import HexGrid, HexCoord
+from .hex_grid import HexGrid, HexCoord
 
 class QueenPlacer:
     """

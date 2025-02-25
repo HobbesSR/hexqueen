@@ -8,7 +8,7 @@ from typing import Dict, Set, Tuple
 from hex_grid import HexGrid, HexCoord
 from solver import PuzzleSolver
 from advanced_solver import AdvancedPuzzleSolver
-from hex_queen_puzzle import generate_puzzle_with_queens, draw_hex_grid
+from src.puzzle_visualizer import generate_puzzle_with_queens, draw_hex_grid
 import matplotlib.pyplot as plt
 
 def create_test_puzzle(grid_radius: int = 3, seed: int = 42) -> Tuple[HexGrid, Dict[int, HexCoord], Dict[HexCoord, int]]:

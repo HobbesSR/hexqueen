@@ -10,12 +10,12 @@ import numpy as np
 import matplotlib.pyplot as plt
 from typing import Dict, List, Set, Tuple, Optional
 
-from hex_grid import HexGrid, HexCoord
-from puzzle_generator import PuzzleGenerator
-from solver import PuzzleSolver
-from advanced_solver import AdvancedPuzzleSolver
-from queen_placer import QueenPlacer
-from hex_queen_puzzle import (
+from .hex_grid import HexGrid, HexCoord
+from .puzzle_generator import PuzzleGenerator
+from .solver import PuzzleSolver
+from .advanced_solver import AdvancedPuzzleSolver
+from .queen_placer import QueenPlacer
+from .puzzle_visualizer import (
     hex_to_pixel, draw_hexagon, draw_queen, get_region_color,
     grow_regions_from_queens, check_regions_contiguity,
     calculate_recommended_queens, generate_puzzle_with_queens,

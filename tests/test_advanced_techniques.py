@@ -8,7 +8,7 @@ from typing import Dict, Set
 from hex_grid import HexGrid, HexCoord
 from solver import PuzzleSolver
 from advanced_solver import AdvancedPuzzleSolver
-from hex_queen_puzzle import draw_hex_grid
+from src.puzzle_visualizer import draw_hex_grid
 
 def test_region_bridging():
     """

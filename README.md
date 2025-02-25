@@ -34,9 +34,9 @@ This module generates visual representations of puzzles and their solutions. It 
 
 ### Puzzle Generation and Queen Placement
 ```python
-from hex_grid import HexGrid
-from puzzle_generator import PuzzleGenerator
-from queen_placer import QueenPlacer
+from src.hex_grid import HexGrid
+from src.puzzle_generator import PuzzleGenerator
+from src.queen_placer import QueenPlacer
 
 # Generate a puzzle
 grid = HexGrid(radius=5)
@@ -59,17 +59,17 @@ else:
 ### Puzzle Page Generation and PDF Output
 Run the puzzle page generator from the command line:
 ```bash
-python puzzle_page_generator.py --num_puzzles 3 --grid_radius 3 --output output_folder --seed 1234
+python src/puzzle_page_generator.py --num_puzzles 3 --grid_radius 3 --output output_folder --seed 1234
 ```
 For PDF output with multiple puzzles per page, add the `--pdf` flag along with `--rows` and `--columns`:
 ```bash
-python puzzle_page_generator.py --num_puzzles 6 --grid_radius 3 --output output_folder --seed 1234 --pdf --rows 2 --columns 3
+python src/puzzle_page_generator.py --num_puzzles 6 --grid_radius 3 --output output_folder --seed 1234 --pdf --rows 2 --columns 3
 ```
 
 ### Main Script Usage
 The main script (`main.py`) serves as the entry point for running HexQueen. To display the available options, run:
 ```bash
-python main.py --help
+python src/main.py --help
 ```
 You can customize command line arguments to run different components of the project.
 
@@ -78,7 +78,7 @@ For internal tracking of agent goals and in-progress tasks, refer to the [AGENT_
 ## Testing and Validation
 Run the tests using:
 ```bash
-python -m unittest test.py
+python -m unittest tests/test.py
 ```
 
 ## Dependencies

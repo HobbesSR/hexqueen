@@ -9,7 +9,7 @@ import matplotlib.patches as patches
 from typing import Dict, List, Set, Tuple, Optional
 from collections import defaultdict, deque
 
-from hex_grid import HexGrid, HexCoord
+from .hex_grid import HexGrid, HexCoord
 
 def hex_to_pixel(coord: HexCoord, size: float = 1.0) -> Tuple[float, float]:
     """
@@ -201,7 +201,7 @@ def generate_puzzle_with_queens(grid: HexGrid, seed: Optional[int] = None, max_a
     Returns:
         Tuple of (success, grid, cell_regions, queen_positions)
     """
-    from queen_placer import QueenPlacer
+    from .queen_placer import QueenPlacer
     
     attempt = 0
     valid = False

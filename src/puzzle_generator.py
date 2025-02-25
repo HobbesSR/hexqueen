@@ -5,7 +5,7 @@ import random
 from typing import Dict, List, Set, Tuple, Optional
 from collections import defaultdict, deque
 
-from hex_grid import HexGrid, HexCoord
+from .hex_grid import HexGrid, HexCoord
 
 class PuzzleGenerator:
     """
@@ -165,7 +165,7 @@ class PuzzleGenerator:
         Returns:
             Tuple[bool, bool]: (is_unique, is_logically_solvable)
         """
-        from solver import PuzzleSolver
+        from .solver import PuzzleSolver
         
         # Create a solver with only piece positions as clues
         solver = PuzzleSolver(self.grid, self.num_pieces)

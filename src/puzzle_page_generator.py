@@ -8,8 +8,8 @@ import random
 import math
 import matplotlib.pyplot as plt
 from typing import Dict, Optional, Tuple, List
-from hex_grid import HexGrid, HexCoord
-from hex_queen_puzzle import (
+from .hex_grid import HexGrid, HexCoord
+from .puzzle_visualizer import (
     hex_to_pixel, draw_hexagon, draw_queen, get_region_color,
     grow_regions_from_queens, check_regions_contiguity,
     calculate_recommended_queens, generate_puzzle_with_queens,

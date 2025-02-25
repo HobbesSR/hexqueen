@@ -6,8 +6,8 @@ from collections import defaultdict, deque
 import copy
 import time
 
-from hex_grid import HexGrid, HexCoord
-from puzzle_generator import PuzzleGenerator
+from .hex_grid import HexGrid, HexCoord
+from .puzzle_generator import PuzzleGenerator
 
 class PuzzleSolver:
     """
@@ -164,9 +164,9 @@ class PuzzleSolver:
         # Get cells already assigned to this region
         assigned = self.region_cells[region_id]
         if not assigned:
-            return True  # No cells assigned yet
+            return True  # No cells assigned yet, trivially contiguous
         
-        # If only one cell is assigned, it's trivially contiguous
+        # If only one cell is assigned, it's also trivially contiguous
         if len(assigned) == 1:
             return True
         
@@ -175,10 +175,10 @@ class PuzzleSolver:
                           if region_id in candidates and c != excluded_cell and c not in assigned}
         
         # If no potential cells and more than one assigned cell,
-        # we need to check if assigned cells form a contiguous region
+        # we need to check if assigned cells themselves form a contiguous region
         if not potential_cells:
             # Use BFS to check if all assigned cells are connected
-            start = next(iter(assigned))
+            start = next(iter(assigned)) # Start BFS from any assigned cell
             visited = {start}
             queue = deque([start])
             
@@ -195,7 +195,7 @@ class PuzzleSolver:
         # For regions with potential cells, we need to check if all assigned cells
         # can be connected through the potential cells
         
-        # Create a graph including assigned and potential cells
+        # Create a graph including assigned and potential cells for contiguity check
         graph = {}
         for cell in assigned | potential_cells:
             graph[cell] = []
@@ -203,11 +203,11 @@ class PuzzleSolver:
                 if (neighbor in assigned or neighbor in potential_cells) and neighbor != excluded_cell:
                     graph[cell].append(neighbor)
         
-        # Use BFS to check if all assigned cells are connected through the graph
-        start = next(iter(assigned))
+        # Use BFS to check connectivity in the graph
+        start = next(iter(assigned)) # Start BFS from any assigned cell
         visited = {start}
         queue = deque([start])
-        visited_assigned = {start}
+        visited_assigned = {start} # Track visited assigned cells
         
         while queue:
             current = queue.popleft()
@@ -218,7 +218,7 @@ class PuzzleSolver:
                     if neighbor in assigned:
                         visited_assigned.add(neighbor)
         
-        # Check if all assigned cells are in the visited set
+        # Check if all assigned cells are reachable
         return len(visited_assigned) == len(assigned)
     
     def apply_naked_singles(self) -> bool:
@@ -392,23 +392,23 @@ class PuzzleSolver:
         while True:
             progress = False
             
-            # Apply naked singles
+            # Naked Singles: If a cell has only one candidate, assign it.
             result = self.apply_naked_singles()
             if result is False:  # Contradiction
                 return False
             progress = progress or result
             
-            # Apply hidden singles
+            # Hidden Singles: If a region can only go in one cell in a local area, assign it.
             result = self.apply_hidden_singles()
             if result is False:  # Contradiction
                 return False
             progress = progress or result
             
-            # Apply hidden pairs
+            # Hidden Pairs: If two cells in a local area can only have the same two regions, assign them.
             result = self.apply_hidden_pairs()
             progress = progress or result
             
-            # Apply region contiguity technique
+            # Region Contiguity: Eliminate candidates that would break region contiguity.
             result = self.apply_region_contiguity_technique()
             if result is False:  # Contradiction
                 return False
