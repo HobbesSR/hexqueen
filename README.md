@@ -1,166 +1,91 @@
-# Hexagonal Puzzle Solver
-
-A Python implementation for generating and solving hexagonal grid-based puzzles with region expansion.
+# HexQueen Puzzle Generator and Queen Placer
 
 ## Overview
+HexQueen is a comprehensive puzzle generation project that creates engaging hexagonal grid puzzles. It includes modules for generating puzzles with unique solutions, placing queens on the grid so that no two threaten each other, and rendering puzzle pages for both digital viewing and printable output. Features include:
+- Generating hexagonal grids using cube coordinates.
+- Creating puzzles with region growth.
+- Ensuring contiguity of regions and a logical solution.
+- Strategic queen placement using random or backtracking methods.
+- Generating puzzle pages as images and PDFs with multiple puzzles per sheet.
 
-This project implements a puzzle system where:
-- Pieces are placed on a hexagonal grid
-- Each piece has its own region that grows to cover parts of the board
-- All regions together cover the entire board
-- Each region is contiguous and contains exactly one piece
-- The puzzle has a unique solution that can be found using logical techniques
+## Hexagonal Grid (hex_grid.py)
+The HexGrid module provides the infrastructure for managing a hexagonal grid using cube coordinates (where x + y + z = 0). It includes capabilities to generate grid cells, determine neighbors, and calculate distances.
 
-## Features
+## Puzzle Generation (puzzle_generator.py)
+This module creates puzzles on a hexagonal grid ensuring a unique and logically solvable layout. Key functionalities include:
+- Puzzle generation with region growth.
+- Ensuring contiguity of regions.
+- Validating the uniqueness and solvability of puzzles.
 
-- **Hexagonal Grid**: Uses cube coordinates for clean hexagonal grid operations
-- **Puzzle Generation**: Creates regions for each piece and grows them until the entire board is covered
-- **Solving Techniques**: Implements logical solving strategies like "hidden pairs" and "naked singles"
-- **Recursive Solver**: Includes a backtracking solver with memoization for efficient solving
-- **Visualization**: Provides visualization of puzzles and solutions using matplotlib
+## Queen Placement (queen_placer.py)
+The Queen Placer module strategically positions queens on the grid so that no two queens can attack each other. It features:
+- Random queen placements that adhere to non-attacking constraints.
+- A backtracking approach if initial placements fail.
+- Functions to determine available cells and update attack zones.
 
-## Installation
+## Puzzle Page Generation (puzzle_page_generator.py)
+This module generates visual representations of puzzles and their solutions. It supports:
+- Rendering puzzles on an 8x11 inch page using matplotlib.
+- Generating solution pages that display the completed puzzle with pieces or queens.
+- Batch generation of puzzle pages.
+- Optional PDF generation featuring multiple puzzles per sheet.
 
-### Requirements
+## Usage Examples
 
-- Python 3.7+
-- Required packages:
-  - matplotlib
-  - numpy
-
-### Setup
-
-```bash
-# Clone the repository
-git clone https://github.com/yourusername/hexagonal-puzzle-solver.git
-cd hexagonal-puzzle-solver
-
-# Install dependencies
-pip install matplotlib numpy
-```
-
-## Usage
-
-### Basic Usage
-
+### Puzzle Generation and Queen Placement
 ```python
 from hex_grid import HexGrid
 from puzzle_generator import PuzzleGenerator
-from solver import PuzzleSolver
+from queen_placer import QueenPlacer
 
-# Create a hexagonal grid with radius 3
-grid = HexGrid(3)
+# Generate a puzzle
+grid = HexGrid(radius=5)
+generator = PuzzleGenerator(grid, num_pieces=4, seed=42)
+if generator.generate_puzzle():
+    puzzle = generator.get_puzzle_state()
+    print("Generated Puzzle:", puzzle)
+else:
+    print("Failed to generate a valid puzzle.")
 
-# Generate a puzzle with 5 pieces
-generator = PuzzleGenerator(grid, 5, seed=42)
-generator.generate_puzzle()
-
-# Solve the puzzle
-solver = PuzzleSolver(grid, 5)
-solver.initialize_from_clues(generator.piece_positions)
-solver.solve()
-
-# Get the solution
-solution = solver.get_solution()
+# Place queens on the grid
+placer = QueenPlacer(grid, num_queens=4, seed=42)
+if placer.place_queens():
+    queens = placer.get_queen_positions()
+    print("Queen Positions:", queens)
+else:
+    print("Failed to place queens without conflicts.")
 ```
 
-### Command Line Interface
-
-The project includes a command-line interface for generating and solving puzzles:
-
+### Puzzle Page Generation and PDF Output
+Run the puzzle page generator from the command line:
 ```bash
-python main.py --radius 3 --pieces 5 --seed 42
+python puzzle_page_generator.py --num_puzzles 3 --grid_radius 3 --output output_folder --seed 1234
+```
+For PDF output with multiple puzzles per page, add the `--pdf` flag along with `--rows` and `--columns`:
+```bash
+python puzzle_page_generator.py --num_puzzles 6 --grid_radius 3 --output output_folder --seed 1234 --pdf --rows 2 --columns 3
 ```
 
-This will:
-1. Generate a puzzle with the specified parameters
-2. Visualize the generated puzzle and save it as "generated_puzzle.png"
-3. Solve the puzzle using logical techniques and recursive solving
-4. Visualize the solution and save it as "puzzle_solution.png"
-5. Check if the solution is unique
+### Main Script Usage
+The main script (`main.py`) serves as the entry point for running HexQueen. To display the available options, run:
+```bash
+python main.py --help
+```
+You can customize command line arguments to run different components of the project.
 
-## Components
+For internal tracking of agent goals and in-progress tasks, refer to the [AGENT_README.md](AGENT_README.md) file, which serves as a scratch pad for AI agent task management.
 
-### HexGrid
+## Testing and Validation
+Run the tests using:
+```bash
+python -m unittest test.py
+```
 
-The `HexGrid` class manages the hexagonal grid using cube coordinates, which simplifies neighbor calculations and distance measurements.
+## Dependencies
+Refer to `requirements.txt` for the list of required packages, including matplotlib and numpy.
 
-Key features:
-- Efficient neighbor calculation
-- Distance measurement between cells
-- Grid generation with specified radius
-
-### PuzzleGenerator
-
-The `PuzzleGenerator` class creates puzzles by:
-1. Placing pieces randomly on the grid
-2. Growing regions from each piece until the entire board is covered
-3. Ensuring all regions are contiguous
-
-Features:
-- Configurable number of pieces
-- Random seed for reproducibility
-- Retry mechanism to handle failed generation attempts
-
-### PuzzleSolver
-
-The `PuzzleSolver` class implements various techniques to solve puzzles:
-
-1. **Logical Techniques**:
-   - Naked Singles: If a cell has only one possible region, assign it
-   - Hidden Singles: If a region can only go in one cell in a local area, assign it
-   - Hidden Pairs: If two cells can only have the same two regions, those regions must be in those cells
-
-2. **Recursive Solver**:
-   - Uses backtracking with memoization
-   - Applies logical techniques at each step
-   - Finds all solutions (or up to a specified limit)
-
-3. **Contiguity Constraints**:
-   - Ensures all regions remain contiguous during solving
-   - Eliminates candidates that would break contiguity
-
-## Challenges Addressed
-
-### Infinite Recursion Prevention
-
-The puzzle generator includes a retry count and maximum retries limit to prevent infinite recursion during puzzle creation. If a puzzle cannot be generated after a certain number of attempts, the generator gives up and reports failure.
-
-### Logical Flow in Solving Functions
-
-The solver implements a clean separation between different logical techniques, with each technique returning whether it made progress. The main solving loop applies techniques until no more progress is made, ensuring efficient solving.
-
-### State Management
-
-The recursive solver carefully manages state by:
-- Saving and restoring the complete state before and after each recursive call
-- Using memoization to avoid redundant work
-- Maintaining consistent state for neighbors and candidates
-
-### Efficiency Improvements
-
-Several optimizations improve efficiency:
-- Memoization in the recursive solver
-- Minimum remaining values heuristic for cell selection
-- Caching of neighbors in the HexGrid class
-- Early termination when contradictions are found
-
-## Visualization
-
-The project includes visualization capabilities using matplotlib:
-- Displays the hexagonal grid with regions colored differently
-- Marks piece positions with special markers
-- Saves visualizations as PNG files
-
-## Future Improvements
-
-Potential areas for enhancement:
-- More advanced logical solving techniques
-- Interactive GUI for puzzle solving
-- Difficulty rating system for generated puzzles
-- Optimization for larger grid sizes
-- Additional puzzle constraints and variations
+## Contributing
+Contributions are welcome. Fork the repository and submit pull requests to enhance puzzle generation, queen placement strategies, and page rendering functionalities.
 
 ## License
-
-[MIT License](LICENSE)
+This project is licensed under the MIT License.
