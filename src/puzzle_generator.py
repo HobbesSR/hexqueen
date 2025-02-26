@@ -23,6 +23,7 @@ class PuzzleGenerator:
         self.grid = grid
         self.num_pieces = num_pieces
         self.rng = random.Random(seed)
+        self.debug = True
         
         # Puzzle state
         self.piece_positions = {}  # Maps piece_id -> HexCoord

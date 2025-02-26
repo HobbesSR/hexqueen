@@ -15,6 +15,7 @@ from .puzzle_generator import PuzzleGenerator
 from .solver import PuzzleSolver
 from .advanced_solver import AdvancedPuzzleSolver
 from .queen_placer import QueenPlacer
+from .reverse_engineering_solver import ReverseEngineeringSolver
 from .puzzle_visualizer import (
     hex_to_pixel, draw_hexagon, draw_queen, get_region_color,
     grow_regions_from_queens, check_regions_contiguity,
@@ -188,6 +189,107 @@ def demonstrate_queen_placement(grid_radius: int, seed: Optional[int] = None):
             print("Solution saved as 'puzzle_solution_with_clues.png'")
             print("\nNote: This puzzle requires additional clues to be solved uniquely.")
     return
+def demonstrate_reverse_engineering(grid_radius: int, seed: Optional[int] = None, ensure_logical: bool = True):
+    """
+    Demonstrate the reverse engineering process to create challenging puzzles.
+    
+    Args:
+        grid_radius: Radius of the hexagonal grid
+        seed: Random seed for reproducibility
+        ensure_logical: Whether to ensure the puzzle is solvable using only logical techniques
+    """
+    num_pieces = calculate_recommended_queens(grid_radius)
+    print(f"Demonstrating reverse engineering with grid radius {grid_radius} and {num_pieces} pieces...")
+    
+    # Create a grid
+    grid = HexGrid(grid_radius)
+    
+    # Generate a complete puzzle
+    generator = PuzzleGenerator(grid, num_pieces, seed)
+    if not generator.generate_puzzle(ensure_unique=True, ensure_logical=True):
+        print(f"Failed to generate a puzzle with radius {grid_radius} and {num_pieces} pieces.")
+        return
+    
+    print("Puzzle generated successfully.")
+    solution = generator.cell_regions
+    piece_positions = generator.piece_positions
+    
+    # Visualize the complete solution
+    fig = visualize_puzzle(grid, solution, piece_positions,
+                         f"Complete Solution (Radius: {grid_radius}, Pieces: {num_pieces})")
+    plt.savefig("complete_solution.png")
+    print("Complete solution saved as 'complete_solution.png'")
+    
+    # Create a reverse engineering solver
+    print("\nStarting reverse engineering process...")
+    re_solver = ReverseEngineeringSolver(grid, num_pieces, seed)
+    re_solver.initialize_from_solution(solution, piece_positions)
+    
+    # Find minimal clues
+    start_time = time.time()
+    print("Finding minimal clues using basic approach...")
+    minimal_clues = re_solver.find_minimal_clues(ensure_logical=ensure_logical)
+    basic_time = time.time() - start_time
+    
+    print(f"Basic approach completed in {basic_time:.2f} seconds.")
+    print(f"Initial clues: {re_solver.metrics['initial_clues']}")
+    print(f"Final clues: {re_solver.metrics['final_clues']}")
+    print(f"Removed clues: {re_solver.metrics['removed_clues']}")
+    
+    # Visualize the puzzle with minimal clues
+    minimal_solution = {cell: region_id for cell, region_id in solution.items()
+                      if cell in piece_positions.values() or cell in minimal_clues}
+    fig = visualize_puzzle(grid, minimal_solution, piece_positions,
+                         f"Minimal Clues (Basic) - {len(minimal_clues)} clues")
+    plt.savefig("minimal_clues_basic.png")
+    print("Minimal clues (basic) saved as 'minimal_clues_basic.png'")
+    
+    # Find minimal clues by importance
+    print("\nFinding minimal clues using importance-based approach...")
+    re_solver.initialize_from_solution(solution, piece_positions)  # Reset the solver
+    start_time = time.time()
+    minimal_clues_importance = re_solver.find_minimal_clues_by_importance(ensure_logical=ensure_logical)
+    importance_time = time.time() - start_time
+    
+    print(f"Importance-based approach completed in {importance_time:.2f} seconds.")
+    print(f"Initial clues: {re_solver.metrics['initial_clues']}")
+    print(f"Final clues: {re_solver.metrics['final_clues']}")
+    print(f"Removed clues: {re_solver.metrics['removed_clues']}")
+    
+    # Visualize the puzzle with minimal clues by importance
+    minimal_solution_importance = {cell: region_id for cell, region_id in solution.items()
+                                if cell in piece_positions.values() or cell in minimal_clues_importance}
+    fig = visualize_puzzle(grid, minimal_solution_importance, piece_positions,
+                         f"Minimal Clues (Importance) - {len(minimal_clues_importance)} clues")
+    plt.savefig("minimal_clues_importance.png")
+    print("Minimal clues (importance) saved as 'minimal_clues_importance.png'")
+    
+    # Verify that the puzzle is uniquely solvable
+    print("\nVerifying that the puzzle is uniquely solvable...")
+    solver = AdvancedPuzzleSolver(grid, num_pieces)
+    solver.initialize_from_clues(piece_positions, minimal_clues_importance)
+    start_time = time.time()
+    solved = solver.solve()
+    solve_time = time.time() - start_time
+    
+    if solved:
+        print(f"Puzzle solved in {solve_time:.2f} seconds.")
+        print(f"Solver metrics: {solver.get_metrics()}")
+        solution = solver.get_solution()
+        
+        # Check if the solution matches the original
+        matches_original = all(solution.get(cell) == region_id for cell, region_id in generator.cell_regions.items())
+        print(f"Solution matches original: {matches_original}")
+        
+        # Visualize the solution
+        fig = visualize_puzzle(grid, solution, piece_positions, "Puzzle Solution")
+        plt.savefig("reverse_engineered_solution.png")
+        print("Solution saved as 'reverse_engineered_solution.png'")
+    else:
+        print("Failed to solve the puzzle.")
+        print(f"Solver metrics: {solver.get_metrics()}")
+    
+    return
 
 def main():
     """Main function to parse arguments and run the program."""
@@ -199,6 +301,7 @@ def main():
     parser.add_argument("--output", type=str, default=".", help="Output directory for saved images")
     parser.add_argument("--ensure-unique", action="store_true", default=True, help="Ensure the puzzle has a unique solution")
     parser.add_argument("--ensure-logical", action="store_true", default=True, help="Ensure the puzzle is solvable using only logical techniques")
+    parser.add_argument("--reverse-engineer", action="store_true", help="Use reverse engineering to create challenging puzzles")
     args = parser.parse_args()
     
     args.pieces = calculate_recommended_queens(args.radius)
@@ -207,7 +310,11 @@ def main():
     if args.output != "." and not os.path.exists(args.output):
         os.makedirs(args.output)
     
-    # Since queen placement is the default behavior, directly demonstrate it.
+    if args.reverse_engineer:
+        demonstrate_reverse_engineering(args.radius, args.seed, args.ensure_logical)
+    else:
+        # Default behavior: demonstrate queen placement
+        demonstrate_queen_placement(args.radius, args.seed)
     demonstrate_queen_placement(args.radius, args.seed)
 
 if __name__ == "__main__":
