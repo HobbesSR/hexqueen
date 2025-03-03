@@ -151,7 +151,7 @@ def test_specific_techniques():
         if cell not in solver.assigned_cells and 0 in candidates:
             print(f"  {cell}: {candidates}")
     
-    result = solver.apply_critical_cut_detection()
+    result = solver.apply_critical_cut_detection_technique()
     
     print(f"Critical cut detection made progress: {result}")
     print("After critical cut detection:")

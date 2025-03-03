@@ -40,7 +40,7 @@ def test_region_bridging():
     print_region_candidates(basic_solver, 0)
     
     start_time = time.time()
-    basic_result = basic_solver.apply_logical_techniques()
+    basic_result = basic_solver.apply_deduction_techniques()
     basic_time = time.time() - start_time
     
     print(f"\nBasic solver after logical techniques (time: {basic_time:.4f}s):")
@@ -54,7 +54,7 @@ def test_region_bridging():
     print_region_candidates(advanced_solver, 0)
     
     start_time = time.time()
-    advanced_result = advanced_solver.apply_logical_techniques()
+    advanced_result = advanced_solver.apply_deduction_techniques()
     advanced_time = time.time() - start_time
     
     print(f"\nAdvanced solver after logical techniques (time: {advanced_time:.4f}s):")
@@ -107,7 +107,7 @@ def test_critical_cut_detection():
     print_region_candidates(basic_solver, 0)
     
     start_time = time.time()
-    basic_result = basic_solver.apply_logical_techniques()
+    basic_result = basic_solver.apply_deduction_techniques()
     basic_time = time.time() - start_time
     
     print(f"\nBasic solver after logical techniques (time: {basic_time:.4f}s):")
@@ -121,7 +121,7 @@ def test_critical_cut_detection():
     print_region_candidates(advanced_solver, 0)
     
     start_time = time.time()
-    advanced_result = advanced_solver.apply_logical_techniques()
+    advanced_result = advanced_solver.apply_deduction_techniques()
     advanced_time = time.time() - start_time
     
     print(f"\nAdvanced solver after logical techniques (time: {advanced_time:.4f}s):")
@@ -175,7 +175,7 @@ def test_forcing_chains():
     print_all_candidates(basic_solver)
     
     start_time = time.time()
-    basic_result = basic_solver.apply_logical_techniques()
+    basic_result = basic_solver.apply_deduction_techniques()
     basic_time = time.time() - start_time
     
     print(f"\nBasic solver after logical techniques (time: {basic_time:.4f}s):")
@@ -189,7 +189,7 @@ def test_forcing_chains():
     print_all_candidates(advanced_solver)
     
     start_time = time.time()
-    advanced_result = advanced_solver.apply_logical_techniques()
+    advanced_result = advanced_solver.apply_deduction_techniques()
     advanced_time = time.time() - start_time
     
     print(f"\nAdvanced solver after logical techniques (time: {advanced_time:.4f}s):")

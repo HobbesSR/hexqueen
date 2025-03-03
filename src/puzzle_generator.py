@@ -17,27 +17,27 @@ class PuzzleGenerator:
         
         Args:
             grid: The hexagonal grid to use
-            num_pieces: Number of pieces/regions to create
+            num_regions: Number of pieces/regions to create
             seed: Random seed for reproducibility
         """
         self.grid = grid
-        self.num_pieces = num_pieces
+        self.num_regions = num_pieces
         self.rng = random.Random(seed)
         self.debug = True
         
+        
         # Puzzle state
-        self.piece_positions = {}  # Maps piece_id -> HexCoord
+        self.region_seeds = {}  # Maps region_id -> HexCoord
         self.cell_regions = {}     # Maps HexCoord -> region_id
         self.regions = defaultdict(set)  # Maps region_id -> set of HexCoord
         self.region_frontiers = defaultdict(set)  # Maps region_id -> frontier cells
-        
         # Tracking for puzzle generation
         self.max_retries = 100
         self.retry_count = 0
     
     def reset(self):
         """Reset the puzzle state."""
-        self.piece_positions = {}
+        self.region_seeds = {}
         self.cell_regions = {}
         self.regions = defaultdict(set)
         self.region_frontiers = defaultdict(set)
@@ -64,7 +64,7 @@ class PuzzleGenerator:
             # Check if this cell is far enough from existing pieces
             if all(self.grid.get_distance(cell, pos) >= min_distance for pos in placed_pieces):
                 piece_id = len(placed_pieces)
-                self.piece_positions[piece_id] = cell
+                self.region_seeds[piece_id] = cell
                 placed_pieces.append(cell)
                 
                 # Initialize region with the piece's cell
@@ -140,8 +140,8 @@ class PuzzleGenerator:
         if not region_cells:
             return True
         
-        # Start BFS from the piece position
-        start = self.piece_positions[region_id]
+        # Start BFS from the region seed
+        start = self.region_seeds[region_id]
         visited = {start}
         queue = deque([start])
         
@@ -169,8 +169,8 @@ class PuzzleGenerator:
         from .solver import PuzzleSolver
         
         # Create a solver with only piece positions as clues
-        solver = PuzzleSolver(self.grid, self.num_pieces)
-        solver.initialize_from_clues(self.piece_positions)
+        solver = PuzzleSolver(self.grid, self.num_regions)
+        solver.initialize_from_clues(self.region_seeds)
         
         # Check for uniqueness
         solution_count = solver.count_solutions(2)
@@ -178,11 +178,11 @@ class PuzzleGenerator:
         
         # Check for logical solvability
         # Create a new solver instance to ensure clean state
-        logical_solver = PuzzleSolver(self.grid, self.num_pieces)
-        logical_solver.initialize_from_clues(self.piece_positions)
+        logical_solver = PuzzleSolver(self.grid, self.num_regions)
+        logical_solver.initialize_from_clues(self.region_seeds)
         
         # Apply only logical techniques
-        logical_solver.apply_logical_techniques()
+        logical_solver.apply_deduction_techniques()
         
         # Check if the puzzle is solved using only logical techniques
         is_logically_solvable = logical_solver.is_solved()
@@ -245,8 +245,8 @@ class PuzzleGenerator:
         
         return {
             'grid_radius': self.grid.radius,
-            'num_pieces': self.num_pieces,
-            'piece_positions': {pid: (pos.x, pos.y, pos.z) for pid, pos in self.piece_positions.items()},
+            'num_regions': self.num_regions,
+            'region_seeds': {pid: (pos.x, pos.y, pos.z) for pid, pos in self.region_seeds.items()},
             'cell_regions': {(cell.x, cell.y, cell.z): region_id for cell, region_id in self.cell_regions.items()},
             'retry_count': self.retry_count,
             'is_unique': is_unique,

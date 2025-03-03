@@ -143,7 +143,7 @@ class ReverseEngineeringSolver:
             solver.initialize_from_clues(self.piece_positions, self.fixed_cells)
             
             # Apply logical techniques
-            solver.apply_logical_techniques()
+            solver.apply_deduction_techniques()
             
             # Check if the puzzle is solved
             result = solver.is_solved()

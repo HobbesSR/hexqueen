@@ -15,16 +15,16 @@ class PuzzleSolver:
     This solver now supports an option to solve puzzles using only logical techniques,
     without recursing. Set the logic_only flag in the solve() method to enforce this.
     """
-    def __init__(self, grid: HexGrid, num_pieces: int):
+    def __init__(self, grid: HexGrid, num_regions: int):
         """
         Initialize the puzzle solver.
         
         Args:
             grid: The hexagonal grid
-            num_pieces: Number of pieces/regions
+            num_regions: Number of pieces/regions
         """
         self.grid = grid
-        self.num_pieces = num_pieces
+        self.num_regions = num_regions
         
         # Solver state
         self.cell_candidates = {}  # Maps HexCoord -> set of possible region IDs
@@ -64,7 +64,7 @@ class PuzzleSolver:
         self.piece_positions = generator.piece_positions.copy()
         
         # Initialize all cells with all possible candidates
-        all_regions = set(range(self.num_pieces))
+        all_regions = set(range(self.num_regions))
         for cell in self.grid.get_all_cells():
             self.cell_candidates[cell] = all_regions.copy()
         
@@ -83,7 +83,7 @@ class PuzzleSolver:
         self.piece_positions = piece_positions.copy()
         
         # Initialize all cells with all possible candidates
-        all_regions = set(range(self.num_pieces))
+        all_regions = set(range(self.num_regions))
         for cell in self.grid.get_all_cells():
             self.cell_candidates[cell] = all_regions.copy()
         
@@ -140,7 +140,7 @@ class PuzzleSolver:
             bool: True if constraints were applied successfully, False if contradiction
         """
         # For each region, ensure it can still form a contiguous area
-        for other_region in range(self.num_pieces):
+        for other_region in range(self.num_regions):
             if other_region == region_id:
                 continue
             
@@ -221,7 +221,7 @@ class PuzzleSolver:
         # Check if all assigned cells are reachable
         return len(visited_assigned) == len(assigned)
     
-    def apply_naked_singles(self) -> bool:
+    def apply_naked_singles_technique(self) -> bool:
         """
         Apply the naked singles technique: if a cell has only one candidate, assign it.
         
@@ -245,7 +245,7 @@ class PuzzleSolver:
         
         return made_progress
     
-    def apply_hidden_singles(self) -> bool:
+    def apply_hidden_singles_technique(self) -> bool:
         """
         Apply the hidden singles technique: if a region can only go in one cell in a local area,
         assign that cell to the region.
@@ -283,7 +283,7 @@ class PuzzleSolver:
         
         return made_progress
     
-    def apply_hidden_pairs(self) -> bool:
+    def apply_hidden_pairs_technique(self) -> bool:
         """
         Apply the hidden pairs technique: if two cells in a local area can only have the same
         two regions, those regions must be in those cells.
@@ -347,7 +347,7 @@ class PuzzleSolver:
         made_progress = False
         
         # For each region
-        for region_id in range(self.num_pieces):
+        for region_id in range(self.num_regions):
             # Get cells already assigned to this region
             assigned = self.region_cells[region_id]
             if len(assigned) <= 1:
@@ -382,9 +382,9 @@ class PuzzleSolver:
         
         return made_progress
     
-    def apply_logical_techniques(self) -> bool:
+    def apply_deduction_techniques(self) -> bool:
         """
-        Apply all logical techniques until no more progress is made.
+        Apply all deduction techniques until no more progress is made.
         
         Returns:
             bool: True if the puzzle is still valid, False if contradiction found
@@ -393,19 +393,19 @@ class PuzzleSolver:
             progress = False
             
             # Naked Singles: If a cell has only one candidate, assign it.
-            result = self.apply_naked_singles()
+            result = self.apply_naked_singles_technique()
             if result is False:  # Contradiction
                 return False
             progress = progress or result
             
             # Hidden Singles: If a region can only go in one cell in a local area, assign it.
-            result = self.apply_hidden_singles()
+            result = self.apply_hidden_singles_technique()
             if result is False:  # Contradiction
                 return False
             progress = progress or result
             
             # Hidden Pairs: If two cells in a local area can only have the same two regions, assign them.
-            result = self.apply_hidden_pairs()
+            result = self.apply_hidden_pairs_technique()
             progress = progress or result
             
             # Region Contiguity: Eliminate candidates that would break region contiguity.
@@ -461,7 +461,7 @@ class PuzzleSolver:
             return self.memo[state_key]
         
         # Apply logical techniques
-        if not self.apply_logical_techniques():
+        if not self.apply_deduction_techniques():
             self.memo[state_key] = False
             return False
         
@@ -487,7 +487,7 @@ class PuzzleSolver:
             # Skip if this region already has enough cells
             # (this helps balance region sizes)
             total_cells = len(self.grid.get_all_cells())
-            expected_size = total_cells // self.num_pieces
+            expected_size = total_cells // self.num_regions
             # Use a more relaxed constraint to avoid pruning valid solutions
             if len(self.region_cells[region_id]) > expected_size * 2.0:
                 continue
@@ -541,8 +541,8 @@ class PuzzleSolver:
         self.recursion_used = False
         
         try:
-            # Apply logical techniques first
-            self.apply_logical_techniques()
+            # Apply deduction techniques first
+            self.apply_deduction_techniques()
             
             # Check if solved by logic alone
             if self.is_solved():
@@ -593,8 +593,8 @@ class PuzzleSolver:
         self.solution_count = 0
         self.memo = {}
         
-        # Apply logical techniques first
-        if not self.apply_logical_techniques():
+        # Apply deduction techniques first
+        if not self.apply_deduction_techniques():
             self.metrics['time_taken'] = time.time() - start_time
             return 0
         
@@ -621,8 +621,8 @@ class PuzzleSolver:
         """
         self.metrics['recursive_calls'] += 1
         
-        # Apply logical techniques
-        if not self.apply_logical_techniques():
+        # Apply deduction techniques
+        if not self.apply_deduction_techniques():
             return False
         
         # Check if solved

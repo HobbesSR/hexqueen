@@ -93,7 +93,7 @@ class TestPuzzleSolver(unittest.TestCase):
             2: HexCoord(-2, 1, 1)
         }
         solver.initialize_from_clues(piece_positions)
-        progress = solver.apply_naked_singles()
+        progress = solver.apply_naked_singles_technique()
         self.assertTrue(progress)
     
     def test_solver_with_generated_puzzle(self):

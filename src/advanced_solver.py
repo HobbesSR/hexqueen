@@ -15,15 +15,15 @@ class AdvancedPuzzleSolver(PuzzleSolver):
     Advanced solver for hexagonal grid puzzles using higher-order logical techniques.
     Extends the basic PuzzleSolver with more sophisticated deduction methods.
     """
-    def __init__(self, grid: HexGrid, num_pieces: int):
+    def __init__(self, grid: HexGrid, num_regions: int):
         """
         Initialize the advanced puzzle solver.
         
         Args:
             grid: The hexagonal grid
-            num_pieces: Number of pieces/regions
+            num_regions: Number of pieces/regions
         """
-        super().__init__(grid, num_pieces)
+        super().__init__(grid, num_regions)
         
         # Add metrics for advanced techniques
         self.metrics.update({
@@ -33,9 +33,9 @@ class AdvancedPuzzleSolver(PuzzleSolver):
             'connectivity_analysis': 0
         })
     
-    def apply_logical_techniques(self) -> bool:
+    def apply_deduction_techniques(self) -> bool:
         """
-        Apply all logical techniques until no more progress is made.
+        Apply all deduction techniques until no more progress is made.
         Extends the basic solver with advanced techniques.
         
         Returns:
@@ -45,17 +45,17 @@ class AdvancedPuzzleSolver(PuzzleSolver):
             progress = False
             
             # Apply basic techniques first
-            result = self.apply_naked_singles()
+            result = self.apply_naked_singles_technique()
             if result is False:  # Contradiction
                 return False
             progress = progress or result
             
-            result = self.apply_hidden_singles()
+            result = self.apply_hidden_singles_technique()
             if result is False:  # Contradiction
                 return False
             progress = progress or result
             
-            result = self.apply_hidden_pairs()
+            result = self.apply_hidden_pairs_technique()
             progress = progress or result
             
             result = self.apply_region_contiguity_technique()
@@ -69,18 +69,18 @@ class AdvancedPuzzleSolver(PuzzleSolver):
                 return False
             progress = progress or result
             
-            result = self.apply_critical_cut_detection()
+            result = self.apply_critical_cut_detection_technique()
             if result is False:  # Contradiction
                 return False
             progress = progress or result
             
-            result = self.apply_connectivity_analysis()
+            result = self.apply_connectivity_analysis_technique()
             if result is False:  # Contradiction
                 return False
             progress = progress or result
             
             # Apply forcing chains (more expensive, so apply last)
-            result = self.apply_forcing_chains()
+            result = self.apply_forcing_chains_technique()
             if result is False:  # Contradiction
                 return False
             progress = progress or result
@@ -100,7 +100,7 @@ class AdvancedPuzzleSolver(PuzzleSolver):
         """
         made_progress = False
         
-        for region_id in range(self.num_pieces):
+        for region_id in range(self.num_regions):
             assigned = self.region_cells[region_id]
             if len(assigned) <= 1:
                 continue
@@ -218,7 +218,7 @@ class AdvancedPuzzleSolver(PuzzleSolver):
         # Check if all assigned cells are in the visited set
         return len(visited_assigned) == len(assigned)
     
-    def apply_critical_cut_detection(self) -> bool:
+    def apply_critical_cut_detection_technique(self) -> bool:
         """
         Apply critical cut detection: if there's a set of candidate cells that form
         the only possible path between two parts of a region, all those cells must
@@ -230,7 +230,7 @@ class AdvancedPuzzleSolver(PuzzleSolver):
         made_progress = False
         
         # For each region
-        for region_id in range(self.num_pieces):
+        for region_id in range(self.num_regions):
             # Get cells already assigned to this region
             assigned = self.region_cells[region_id]
             if len(assigned) <= 1:
@@ -368,7 +368,7 @@ class AdvancedPuzzleSolver(PuzzleSolver):
         
         return bridges
     
-    def apply_connectivity_analysis(self) -> bool:
+    def apply_connectivity_analysis_technique(self) -> bool:
         """
         Apply connectivity analysis: analyze the connectivity graph of each region
         to make deductions about cell assignments.
@@ -379,7 +379,7 @@ class AdvancedPuzzleSolver(PuzzleSolver):
         made_progress = False
         
         # For each region
-        for region_id in range(self.num_pieces):
+        for region_id in range(self.num_regions):
             # Get cells already assigned to this region
             assigned = self.region_cells[region_id]
             if not assigned:
@@ -430,7 +430,7 @@ class AdvancedPuzzleSolver(PuzzleSolver):
         
         return made_progress
     
-    def apply_forcing_chains(self, max_depth: int = 2) -> bool:
+    def apply_forcing_chains_technique(self, max_depth: int = 2) -> bool:
         """
         Apply forcing chains: make a temporary assignment and see if it leads to a contradiction.
         
@@ -457,8 +457,8 @@ class AdvancedPuzzleSolver(PuzzleSolver):
                 # Try assigning the cell to the region
                 contradiction = False # Assume no contradiction initially
                 if self.assign_cell(cell, region_id):
-                    # If assignment is valid, propagate constraints using logical techniques
-                    if not self.apply_logical_techniques(): # If logical techniques lead to contradiction
+                    # If assignment is valid, propagate constraints using deduction techniques
+                    if not self.apply_deduction_techniques(): # If deduction techniques lead to contradiction
                         contradiction = True # Mark contradiction
                 else:
                     contradiction = True # Mark contradiction if initial assignment failed

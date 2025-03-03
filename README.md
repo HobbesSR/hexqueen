@@ -17,6 +17,14 @@ This module creates puzzles on a hexagonal grid ensuring a unique and logically 
 - Ensuring contiguity of regions.
 - Validating the uniqueness and solvability of puzzles.
 
+## Key Terminology
+
+### Logical Solvability
+A puzzle is logically solvable if it can be solved using the implemented logical deduction techniques (naked singles, hidden singles, region contiguity, etc.) without resorting to brute-force guessing. This ensures that players can solve the puzzle through reasoning alone, making it more engaging and satisfying.
+
+### Clues
+Clues are the region assignments for each cell in the grid, which guide the player to deduce the queen placements. These are also referred to as "fixed cells" in the codebase. The initial region seeds serve as the starting point for generating these clues.
+
 ## Queen Placement (queen_placer.py)
 The Queen Placer module strategically positions queens on the grid so that no two queens can attack each other. It features:
 - Random queen placements that adhere to non-attacking constraints.
