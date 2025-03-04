@@ -25,7 +25,12 @@ class HexCoord:
     
     def __repr__(self):
         return f"HexCoord({self.x}, {self.y}, {self.z})"
-    
+
+    def to_dict(self) -> Dict[str, int]:
+        """
+        Returns a dictionary representation of the HexCoord.
+        """
+        return {'x': self.x, 'y': self.y, 'z': self.z}
     def neighbor(self, direction: int) -> 'HexCoord':
         """
         Get the neighbor in the specified direction (0-5).
@@ -114,3 +119,9 @@ class HexGrid:
     def get_distance(self, coord1: HexCoord, coord2: HexCoord) -> int:
         """Get the distance between two cells."""
         return coord1.distance(coord2)
+
+    def to_dict(self) -> Dict[str, any]:
+        """
+        Returns a dictionary representation of the HexGrid.
+        """
+        return {'radius': self.radius, 'cells': [cell.to_dict() for cell in self.cells]}

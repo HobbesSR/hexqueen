@@ -38,3 +38,15 @@ class HexQueenPuzzle:
         draw_hex_grid(ax, self.grid, self.cell_regions, self.queen_positions if show_pieces else {}, show_pieces=show_pieces, title=title)
         plt.tight_layout()
         return fig
+
+    def to_json(self) -> str:
+        """
+        Serializes the HexQueenPuzzle to a JSON string.
+        """
+        import json
+        data = {
+            'grid': self.grid.to_dict(),
+            'queen_positions': {str(k): v.to_dict() for k, v in self.queen_positions.items()},
+            'cell_regions': {str(tuple(k.to_dict().items())): v for k, v in self.cell_regions.items()}
+        }
+        return json.dumps(data, indent=4)

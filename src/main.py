@@ -89,7 +89,13 @@ def demonstrate_queen_placement(grid_radius: int, seed: Optional[int] = None):
     fig = puzzle.visualize_puzzle(show_pieces=False, title=f"Puzzle Regions (Radius: {grid_radius}, Queens: {num_queens})")
     plt.savefig("puzzle_regions.png")
     print("Puzzle regions saved as 'puzzle_regions.png'")
-    
+
+    # Serialize and save the puzzle to a JSON file
+    puzzle_json = puzzle.to_json()
+    output_path = os.path.join(".", "puzzle.json")
+    with open(output_path, "w") as f:
+        f.write(puzzle_json)
+    print(f"Puzzle saved as 'puzzle.json'")
     print("\nSolving with only queen positions as clues using advanced solver...")
     solver = AdvancedPuzzleSolver(grid, num_queens)
     solver.initialize_from_clues(queen_positions)
@@ -250,7 +256,14 @@ def demonstrate_reverse_engineering(grid_radius: int, seed: Optional[int] = None
     else:
         print("Failed to solve the puzzle.")
         print(f"Solver metrics: {solver.get_metrics()}")
-    
+
+    # Serialize and save the puzzle to a JSON file
+    puzzle_json = puzzle.to_json()
+    output_path = os.path.join(".", "puzzle.json")
+    with open(output_path, "w") as f:
+        f.write(puzzle_json)
+    print(f"Puzzle saved as 'puzzle.json'")
+
     return
 
 def main():

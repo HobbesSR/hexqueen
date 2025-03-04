@@ -46,6 +46,15 @@ This module encapsulates the core logic for representing and solving the HexQuee
 
 ## Usage Examples
 
+### Exporting Puzzles to JSON
+The `HexQueenPuzzle` class now includes a `to_json` method that serializes the puzzle to a JSON string. The `main.py` script has been updated to export generated puzzles to a `puzzle.json` file.
+
+To generate a puzzle and export it to a JSON file, run the `run.py` script with the desired options:
+```bash
+python run.py --radius 5
+```
+This will generate a puzzle with a radius of 5 and save it to `puzzle.json`.
+
 ### Puzzle Generation and Queen Placement
 ```python
 from src.hex_grid import HexGrid
@@ -86,9 +95,15 @@ python src/puzzle_page_generator.py --num_puzzles 6 --grid_radius 3 --output out
 ```
 
 ### Main Script Usage
-The main script (`main.py`) serves as the entry point for running HexQueen. To display the available options, run:
+The `run.py` script serves as the entry point for running HexQueen. To generate a puzzle and export it to a JSON file, run:
 ```bash
-python src/main.py --help
+python run.py --radius 5
+```
+This will generate a puzzle with a radius of 5 and save it to `puzzle.json`.
+
+To display the available options, run:
+```bash
+python run.py --help
 ```
 You can customize command line arguments to run different components of the project.
 
