@@ -32,11 +32,17 @@ The Queen Placer module strategically positions queens on the grid so that no tw
 - Functions to determine available cells and update attack zones.
 
 ## Puzzle Page Generation (puzzle_page_generator.py)
-This module generates visual representations of puzzles and their solutions. It supports:
+This module generates visual representations of puzzles and their solutions, leveraging the core puzzle logic in `hex_queen_puzzle.py`. It supports:
 - Rendering puzzles on an 8x11 inch page using matplotlib.
 - Generating solution pages that display the completed puzzle with pieces or queens.
 - Batch generation of puzzle pages.
 - Optional PDF generation featuring multiple puzzles per sheet.
+
+## HexQueen Puzzle (hex_queen_puzzle.py)
+This module encapsulates the core logic for representing and solving the HexQueen puzzle. It provides classes and functions for:
+- Defining the puzzle state.
+- Implementing solving algorithms.
+- Validating puzzle solutions.
 
 ## Usage Examples
 
@@ -45,6 +51,7 @@ This module generates visual representations of puzzles and their solutions. It 
 from src.hex_grid import HexGrid
 from src.puzzle_generator import PuzzleGenerator
 from src.queen_placer import QueenPlacer
+from src.hex_queen_puzzle import HexQueenPuzzle
 
 # Generate a puzzle
 grid = HexGrid(radius=5)
@@ -52,6 +59,10 @@ generator = PuzzleGenerator(grid, num_pieces=4, seed=42)
 if generator.generate_puzzle():
     puzzle = generator.get_puzzle_state()
     print("Generated Puzzle:", puzzle)
+
+    # Create a HexQueenPuzzle instance
+    hex_queen_puzzle = HexQueenPuzzle(grid, puzzle)
+    print("HexQueenPuzzle:", hex_queen_puzzle)
 else:
     print("Failed to generate a valid puzzle.")
 

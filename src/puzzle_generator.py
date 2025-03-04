@@ -189,16 +189,16 @@ class PuzzleGenerator:
         
         return is_unique, is_logically_solvable
     
-    def generate_puzzle(self, ensure_unique: bool = True, ensure_logical: bool = True) -> bool:
+    def generate_puzzle(self, ensure_unique: bool = True, ensure_logical: bool = True) -> Optional['HexQueenPuzzle']:
         """
-        Generate a complete puzzle.
+        Generate a complete puzzle and return a HexQueenPuzzle object.
         
         Args:
             ensure_unique: Whether to ensure the puzzle has a unique solution
             ensure_logical: Whether to ensure the puzzle is solvable using only logical techniques
             
         Returns:
-            bool: True if puzzle was generated successfully, False otherwise
+            Optional[HexQueenPuzzle]: HexQueenPuzzle object if puzzle generation is successful, None otherwise
         """
         self.retry_count = 0
         
@@ -228,10 +228,11 @@ class PuzzleGenerator:
                     continue
             
             # If we get here, the puzzle is valid and meets all requirements
-            return True
+            from .hex_queen_puzzle import HexQueenPuzzle
+            return HexQueenPuzzle(self.grid, self.region_seeds, self.cell_regions)
         
-        # If we've exceeded max retries, return False
-        return False
+        # If we've exceeded max retries, return None
+        return None
     
     def get_puzzle_state(self) -> Dict:
         """

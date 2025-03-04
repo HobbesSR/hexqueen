@@ -8,8 +8,8 @@ import random
 import math
 import matplotlib.pyplot as plt
 from typing import Dict, Optional, Tuple, List
-from .hex_grid import HexGrid, HexCoord
-from .puzzle_visualizer import (
+from src.hex_grid import HexGrid, HexCoord
+from src.puzzle_visualizer import (
     hex_to_pixel, draw_hexagon, draw_queen, get_region_color,
     grow_regions_from_queens, check_regions_contiguity,
     calculate_recommended_queens, generate_puzzle_with_queens,
@@ -201,13 +201,13 @@ def batch_generate_puzzles_pdf(num_puzzles: int, grid_radius: int, output_path: 
 if __name__ == "__main__":
     import argparse
     parser = argparse.ArgumentParser(description="Batch generate hexagonal puzzle pages on 8x11 paper using queen placements. Use --pdf for PDF output with multiple puzzles per page.")
-    parser.add_argument("--num_puzzles", type=int, default=1, help="Number of puzzles to generate (each yields two pages)")
+    parser.add_argument("--num_puzzles", type=int, default=6, help="Number of puzzles to generate (each yields two pages)")
     parser.add_argument("--grid_radius", type=int, default=3, help="Radius for each puzzle's hex grid")
     parser.add_argument("--output", type=str, default=".", help="Output directory for generated pages")
     parser.add_argument("--seed", type=int, default=None, help="Random seed for reproducibility")
     parser.add_argument("--pdf", action="store_true", help="Generate puzzles as PDFs with multiple puzzles per page")
-    parser.add_argument("--rows", type=int, default=1, help="Number of rows per PDF page (only used with --pdf)")
-    parser.add_argument("--columns", type=int, default=1, help="Number of columns per PDF page (only used with --pdf)")
+    parser.add_argument("--rows", type=int, default=3, help="Number of rows per PDF page (only used with --pdf)")
+    parser.add_argument("--columns", type=int, default=2, help="Number of columns per PDF page (only used with --pdf)")
     args = parser.parse_args()
     
     if args.pdf:

@@ -22,22 +22,7 @@ from .puzzle_visualizer import (
     calculate_recommended_queens, generate_puzzle_with_queens,
     draw_hex_grid
 )
-
-def visualize_puzzle(grid: HexGrid, cell_regions: Dict[HexCoord, int], 
-                     piece_positions: Dict[int, HexCoord], title: str = "Hexagonal Puzzle"):
-    """
-    Visualize the puzzle with regions and pieces.
-    
-    Args:
-        grid: The hexagonal grid
-        cell_regions: Mapping of cells to their regions
-        piece_positions: Mapping of piece IDs to their positions
-        title: Title for the plot
-    """
-    fig, ax = plt.subplots(figsize=(10, 10))
-    draw_hex_grid(ax, grid, cell_regions, piece_positions, show_pieces=True, title=title)
-    plt.tight_layout()
-    return fig
+from .hex_queen_puzzle import HexQueenPuzzle  # Import HexQueenPuzzle
 
 def demonstrate_queen_placement(grid_radius: int, seed: Optional[int] = None):
     """
@@ -71,8 +56,8 @@ def demonstrate_queen_placement(grid_radius: int, seed: Optional[int] = None):
         parity = (cell.x + cell.y + cell.z) % 2
         cell_regions[cell] = -1 - parity
     
-    fig = visualize_puzzle(grid, cell_regions, queen_positions,
-                         f"Queen Placement (Radius: {grid_radius}, Queens: {num_queens})")
+    puzzle = HexQueenPuzzle(grid, queen_positions, cell_regions)
+    fig = puzzle.visualize_puzzle(title=f"Queen Placement (Radius: {grid_radius}, Queens: {num_queens})")
     plt.savefig("queen_placement.png")
     print("Queen placement saved as 'queen_placement.png'")
     
@@ -95,44 +80,15 @@ def demonstrate_queen_placement(grid_radius: int, seed: Optional[int] = None):
     region_sizes = {region_id: len(cells) for region_id, cells in regions.items()}
     print(f"Region sizes: {region_sizes}")
     
-    fig = visualize_puzzle(grid, cell_regions, queen_positions,
-                         f"Puzzle from Queen Placement (Radius: {grid_radius}, Queens: {num_queens})")
+    puzzle = HexQueenPuzzle(grid, queen_positions, cell_regions)
+    fig = puzzle.visualize_puzzle(title=f"Puzzle from Queen Placement (Radius: {grid_radius}, Queens: {num_queens})")
     plt.savefig("queen_puzzle.png")
     print("Puzzle saved as 'queen_puzzle.png'")
     
-    fig = visualize_puzzle(grid, cell_regions, {},
-                         f"Puzzle Regions (Radius: {grid_radius}, Queens: {num_queens})")
+    puzzle = HexQueenPuzzle(grid, {}, cell_regions)
+    fig = puzzle.visualize_puzzle(show_pieces=False, title=f"Puzzle Regions (Radius: {grid_radius}, Queens: {num_queens})")
     plt.savefig("puzzle_regions.png")
     print("Puzzle regions saved as 'puzzle_regions.png'")
-    
-    # Create a visualization showing only the regions
-    fig, ax = plt.subplots(figsize=(10, 10))
-    ax.set_aspect('equal')
-    cmap = plt.get_cmap('tab20', num_queens)
-    colors = [cmap(i) for i in range(num_queens)]
-    
-    for cell in grid.get_all_cells():
-        pixel = hex_to_pixel(cell, hex_size)
-        if cell in cell_regions:
-            region_id = cell_regions[cell]
-            if region_id >= 0:
-                color = colors[region_id]
-                draw_hexagon(ax, pixel, hex_size, color, alpha=1.0)
-    
-    for cell in grid.get_all_cells():
-        pixel = hex_to_pixel(cell, hex_size)
-        angles = np.linspace(0, 2*np.pi, 7)[:-1]
-        x = pixel[0] + hex_size * np.cos(angles)
-        y = pixel[1] + hex_size * np.sin(angles)
-        ax.plot(x, y, color='black', linewidth=0.5)
-    
-    ax.set_xlim([-2*grid.radius, 2*grid.radius])
-    ax.set_ylim([-2*grid.radius, 2*grid.radius])
-    ax.set_title(f"Hex Regions Only (Radius: {grid_radius}, Queens: {num_queens})")
-    ax.axis('off')
-    plt.tight_layout()
-    plt.savefig("hex_regions.png")
-    print("Hex regions visualization saved as 'hex_regions.png'")
     
     print("\nSolving with only queen positions as clues using advanced solver...")
     solver = AdvancedPuzzleSolver(grid, num_queens)
@@ -145,7 +101,8 @@ def demonstrate_queen_placement(grid_radius: int, seed: Optional[int] = None):
         print(f"Puzzle solved in {solve_time:.2f} seconds.")
         print(f"Solver metrics: {solver.get_metrics()}")
         solution = solver.get_solution()
-        fig = visualize_puzzle(grid, solution, queen_positions, "Puzzle Solution")
+        puzzle = HexQueenPuzzle(grid, queen_positions, solution)
+        fig = puzzle.visualize_puzzle(title="Puzzle Solution")
         plt.savefig("queen_solution.png")
         print("Solution saved as 'queen_solution.png'")
         
@@ -184,11 +141,13 @@ def demonstrate_queen_placement(grid_radius: int, seed: Optional[int] = None):
             print(f"Puzzle solved with additional clues in {solve_time:.2f} seconds.")
             print(f"Solver metrics: {new_solver.get_metrics()}")
             solution = new_solver.get_solution()
-            fig = visualize_puzzle(grid, solution, queen_positions, "Puzzle Solution (with additional clues)")
+            puzzle = HexQueenPuzzle(grid, queen_positions, solution)
+            fig = puzzle.visualize_puzzle(title="Puzzle Solution (with additional clues)")
             plt.savefig("puzzle_solution_with_clues.png")
             print("Solution saved as 'puzzle_solution_with_clues.png'")
             print("\nNote: This puzzle requires additional clues to be solved uniquely.")
     return
+
 def demonstrate_reverse_engineering(grid_radius: int, seed: Optional[int] = None, ensure_logical: bool = True):
     """
     Demonstrate the reverse engineering process to create challenging puzzles.
@@ -206,23 +165,25 @@ def demonstrate_reverse_engineering(grid_radius: int, seed: Optional[int] = None
     
     # Generate a complete puzzle
     generator = PuzzleGenerator(grid, num_pieces, seed)
-    if not generator.generate_puzzle(ensure_unique=True, ensure_logical=True):
+    hex_queen_puzzle = generator.generate_puzzle()
+    if not hex_queen_puzzle:
         print(f"Failed to generate a puzzle with radius {grid_radius} and {num_pieces} pieces.")
         return
     
     print("Puzzle generated successfully.")
-    solution = generator.cell_regions
-    piece_positions = generator.piece_positions
+    solution = hex_queen_puzzle.cell_regions
+    piece_positions = hex_queen_puzzle.queen_positions
     
     # Visualize the complete solution
-    fig = visualize_puzzle(grid, solution, piece_positions,
-                         f"Complete Solution (Radius: {grid_radius}, Pieces: {num_pieces})")
+    puzzle = HexQueenPuzzle(grid, piece_positions, solution)
+    fig = puzzle.visualize_puzzle(title=f"Complete Solution (Radius: {grid_radius}, Pieces: {num_pieces})")
     plt.savefig("complete_solution.png")
     print("Complete solution saved as 'complete_solution.png'")
     
     # Create a reverse engineering solver
     print("\nStarting reverse engineering process...")
-    re_solver = ReverseEngineeringSolver(grid, num_pieces, seed)
+    puzzle = HexQueenPuzzle(grid, piece_positions, solution) # Pass puzzle object
+    re_solver = ReverseEngineeringSolver(grid, num_pieces, seed, puzzle=puzzle) # Pass puzzle object
     re_solver.initialize_from_solution(solution, piece_positions)
     
     # Find minimal clues
@@ -239,8 +200,8 @@ def demonstrate_reverse_engineering(grid_radius: int, seed: Optional[int] = None
     # Visualize the puzzle with minimal clues
     minimal_solution = {cell: region_id for cell, region_id in solution.items()
                       if cell in piece_positions.values() or cell in minimal_clues}
-    fig = visualize_puzzle(grid, minimal_solution, piece_positions,
-                         f"Minimal Clues (Basic) - {len(minimal_clues)} clues")
+    puzzle = HexQueenPuzzle(grid, piece_positions, minimal_solution)
+    fig = puzzle.visualize_puzzle(title=f"Minimal Clues (Basic) - {len(minimal_clues)} clues")
     plt.savefig("minimal_clues_basic.png")
     print("Minimal clues (basic) saved as 'minimal_clues_basic.png'")
     
@@ -259,8 +220,8 @@ def demonstrate_reverse_engineering(grid_radius: int, seed: Optional[int] = None
     # Visualize the puzzle with minimal clues by importance
     minimal_solution_importance = {cell: region_id for cell, region_id in solution.items()
                                 if cell in piece_positions.values() or cell in minimal_clues_importance}
-    fig = visualize_puzzle(grid, minimal_solution_importance, piece_positions,
-                         f"Minimal Clues (Importance) - {len(minimal_clues_importance)} clues")
+    puzzle = HexQueenPuzzle(grid, piece_positions, minimal_solution_importance)
+    fig = puzzle.visualize_puzzle(title=f"Minimal Clues (Importance) - {len(minimal_clues_importance)} clues")
     plt.savefig("minimal_clues_importance.png")
     print("Minimal clues (importance) saved as 'minimal_clues_importance.png'")
     
@@ -282,7 +243,8 @@ def demonstrate_reverse_engineering(grid_radius: int, seed: Optional[int] = None
         print(f"Solution matches original: {matches_original}")
         
         # Visualize the solution
-        fig = visualize_puzzle(grid, solution, piece_positions, "Puzzle Solution")
+        puzzle = HexQueenPuzzle(grid, piece_positions, solution)
+        fig = puzzle.visualize_puzzle(title="Puzzle Solution")
         plt.savefig("reverse_engineered_solution.png")
         print("Solution saved as 'reverse_engineered_solution.png'")
     else:
