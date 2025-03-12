@@ -41,12 +41,50 @@ class HexQueenPuzzle:
 
     def to_json(self) -> str:
         """
-        Serializes the HexQueenPuzzle to a JSON string.
+        Serializes the HexQueenPuzzle to a JSON string according to the specification.
+        
+        The puzzle is uniquely defined by:
+        - The grid radius (size of the hexagonal grid)
+        - The number of regions (equal to the number of queens)
+        - The queen positions (represented as region_seeds - each queen is the seed of a region)
+        - The mapping of cells to regions
+        
+        Returns a JSON string with the following structure:
+        {
+            "grid_radius": <int>,
+            "num_regions": <int>,
+            "region_seeds": {
+                "<region_id>": [<x>, <y>, <z>],  // Cube coordinates of queen positions
+                ...
+            },
+            "cell_regions": {
+                "[<x>, <y>, <z>]": <region_id>,  // Mapping of cells to their regions
+                ...
+            }
+        }
+        
+        Note: The "region_seeds" field represents the queen positions, which serve
+        as the seed cells from which each region grows in the puzzle.
         """
         import json
-        data = {
-            'grid': self.grid.to_dict(),
-            'queen_positions': {str(k): v.to_dict() for k, v in self.queen_positions.items()},
-            'cell_regions': {str(tuple(k.to_dict().items())): v for k, v in self.cell_regions.items()}
+        
+        # Format region seeds (queen positions) as [x, y, z] arrays
+        region_seeds = {
+            str(region_id): [coord.x, coord.y, coord.z]
+            for region_id, coord in self.queen_positions.items()
         }
+        
+        # Format cell regions with string coordinates as keys
+        formatted_cell_regions = {
+            f"[{cell.x}, {cell.y}, {cell.z}]": region_id
+            for cell, region_id in self.cell_regions.items()
+        }
+        
+        data = {
+            'grid_radius': self.grid.radius,
+            'num_regions': len(self.queen_positions),
+            'region_seeds': region_seeds,
+            'cell_regions': formatted_cell_regions
+        }
+        
         return json.dumps(data, indent=4)

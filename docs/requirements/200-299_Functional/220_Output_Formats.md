@@ -8,3 +8,5 @@
 
 ## 223: JSON Output
 * Export puzzle data in JSON for application integration
+* Includes grid radius, number of regions, queen positions (as region seeds), and cell-to-region mappings
+* Detailed format specified in [230_JSON_Specification.md](230_JSON_Specification.md)

@@ -4,7 +4,7 @@ This section outlines the constraints and assumptions for the HexQueen project.
 
 ## Puzzle Constraints
 <!-- Subsections could be added here later -->
-Puzzle size and complexity are determined by the `radius` parameter. The number of queens is implicitly determined by the radius.
+Puzzle size and complexity are determined by the `radius` parameter. The number of queens is implicitly determined by the radius. The formula is `(radius * 2) + 1`.
 
 ## Assumptions
 <!-- Subsections could be added here later -->

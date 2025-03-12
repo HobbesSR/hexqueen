@@ -12,4 +12,7 @@ The system should generate puzzles in PNG image format (with solution toggle), P
 
 ## JSON Specification
 [See detailed requirements in 230_JSON_Specification.md](200-299_Functional/230_JSON_Specification.md)
-Puzzle data is exported in JSON format, including grid radius, number of regions, region seeds, and cell regions, using a cube coordinate system.
+Puzzle data is exported in JSON format, including grid radius, number of regions, queen positions (as region seeds), and cell-to-region mappings, using a cube coordinate system. The "region seeds" represent the positions of queens, which serve as the starting points from which regions grow during puzzle generation.
+
+## Import and Visualization from JSON
+The system should be able to import a puzzle from a JSON file and visualize it. The visualization should accurately represent the puzzle's grid, regions, and queen placements.
