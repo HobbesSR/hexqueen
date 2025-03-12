@@ -1,13 +1,16 @@
 """
 Solver for hexagonal grid puzzles with logical techniques and recursive solving.
 """
-from typing import Dict, List, Set, Tuple, Optional, Any
+from typing import Dict, List, Set, Tuple, Optional, Any, TYPE_CHECKING
 from collections import defaultdict, deque
 import copy
 import time
 
 from .hex_grid import HexGrid, HexCoord
-from .puzzle_generator import PuzzleGenerator
+
+# Use TYPE_CHECKING to avoid circular import
+if TYPE_CHECKING:
+    from .puzzle_generator import PuzzleGenerator
 
 class PuzzleSolver:
     """
@@ -54,7 +57,7 @@ class PuzzleSolver:
         self.use_recursion = True
         self.recursion_used = False
 
-    def initialize_from_generator(self, generator: PuzzleGenerator):
+    def initialize_from_generator(self, generator: 'PuzzleGenerator'):
         """
         Initialize the solver state from a puzzle generator.
         
@@ -247,7 +250,7 @@ class PuzzleSolver:
     
     def apply_hidden_singles_technique(self) -> bool:
         """
-        Apply the hidden singles technique: if a region can only go in one cell in a local area,
+        Apply the hidden singles technique: if a region can only go in one cell among immediate neighbors,
         assign that cell to the region.
         
         Returns:
@@ -285,7 +288,7 @@ class PuzzleSolver:
     
     def apply_hidden_pairs_technique(self) -> bool:
         """
-        Apply the hidden pairs technique: if two cells in a local area can only have the same
+        Apply the hidden pairs technique: if two cells among immediate neighbors can only have the same
         two regions, those regions must be in those cells.
         
         Returns:

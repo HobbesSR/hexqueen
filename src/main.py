@@ -85,13 +85,15 @@ def demonstrate_queen_placement(grid_radius: int, seed: Optional[int] = None):
     plt.savefig("queen_puzzle.png")
     print("Puzzle saved as 'queen_puzzle.png'")
     
-    puzzle = HexQueenPuzzle(grid, {}, cell_regions)
-    fig = puzzle.visualize_puzzle(show_pieces=False, title=f"Puzzle Regions (Radius: {grid_radius}, Queens: {num_queens})")
+    # Create a puzzle without pieces for visualization
+    no_pieces_puzzle = HexQueenPuzzle(grid, {}, cell_regions)
+    fig = no_pieces_puzzle.visualize_puzzle(show_pieces=False, title=f"Puzzle Regions (Radius: {grid_radius}, Queens: {num_queens})")
     plt.savefig("puzzle_regions.png")
     print("Puzzle regions saved as 'puzzle_regions.png'")
 
-    # Serialize and save the puzzle to a JSON file
-    puzzle_json = puzzle.to_json()
+    # Serialize and save the puzzle WITH queen positions to a JSON file
+    puzzle_with_queens = HexQueenPuzzle(grid, queen_positions, cell_regions)
+    puzzle_json = puzzle_with_queens.to_json()
     output_path = os.path.join(".", "puzzle.json")
     with open(output_path, "w") as f:
         f.write(puzzle_json)
@@ -249,16 +251,21 @@ def demonstrate_reverse_engineering(grid_radius: int, seed: Optional[int] = None
         print(f"Solution matches original: {matches_original}")
         
         # Visualize the solution
-        puzzle = HexQueenPuzzle(grid, piece_positions, solution)
-        fig = puzzle.visualize_puzzle(title="Puzzle Solution")
+        final_puzzle = HexQueenPuzzle(grid, piece_positions, solution)
+        fig = final_puzzle.visualize_puzzle(title="Puzzle Solution")
         plt.savefig("reverse_engineered_solution.png")
         print("Solution saved as 'reverse_engineered_solution.png'")
+        
+        # Create puzzle for JSON serialization with the complete information
+        puzzle_for_json = HexQueenPuzzle(grid, piece_positions, solution)
     else:
         print("Failed to solve the puzzle.")
         print(f"Solver metrics: {solver.get_metrics()}")
+        # Even if solving failed, create a valid puzzle JSON with the available information
+        puzzle_for_json = HexQueenPuzzle(grid, piece_positions, minimal_solution_importance)
 
     # Serialize and save the puzzle to a JSON file
-    puzzle_json = puzzle.to_json()
+    puzzle_json = puzzle_for_json.to_json()
     output_path = os.path.join(".", "puzzle.json")
     with open(output_path, "w") as f:
         f.write(puzzle_json)
@@ -271,8 +278,6 @@ def main():
     parser = argparse.ArgumentParser(description="Hexagonal Puzzle Generator and Solver")
     parser.add_argument("--radius", type=int, default=3, help="Radius of the hexagonal grid")
     parser.add_argument("--seed", type=int, default=None, help="Random seed for reproducibility")
-    parser.add_argument("--attempts", type=int, default=3, help="Maximum attempts to generate a solvable puzzle")
-    parser.add_argument("--visualize-only", action="store_true", help="Only visualize the puzzle, don't solve it")
     parser.add_argument("--output", type=str, default=".", help="Output directory for saved images")
     parser.add_argument("--ensure-unique", action="store_true", default=True, help="Ensure the puzzle has a unique solution")
     parser.add_argument("--ensure-logical", action="store_true", default=True, help="Ensure the puzzle is solvable using only logical techniques")

@@ -76,7 +76,8 @@ class HexGrid:
         self.radius = radius
         self.cells = self._generate_grid(radius)
         self._neighbors_cache = {}
-        
+        self.center_coord = HexCoord(0, 0, 0) # Store center coordinate
+
     def _generate_grid(self, radius: int) -> Set[HexCoord]:
         """Generate all cells in a hexagonal grid with the given radius."""
         cells = set()
@@ -85,37 +86,37 @@ class HexGrid:
                 z = -x - y
                 cells.add(HexCoord(x, y, z))
         return cells
-    
+
     def get_neighbors(self, coord: HexCoord) -> List[HexCoord]:
         """Get all valid neighbors of a cell."""
         if coord in self._neighbors_cache:
             return self._neighbors_cache[coord]
-        
+
         neighbors = []
         for direction in range(6):
             neighbor = coord.neighbor(direction)
             if neighbor in self.cells:
                 neighbors.append(neighbor)
-        
+
         self._neighbors_cache[coord] = neighbors
         return neighbors
-    
+
     def get_all_cells(self) -> Set[HexCoord]:
         """Return all cells in the grid."""
         return self.cells
-    
+
     def is_valid_cell(self, coord: HexCoord) -> bool:
         """Check if a coordinate is within the grid."""
         return coord in self.cells
-    
+
     def get_random_cell(self, rng) -> HexCoord:
         """Get a random cell from the grid."""
         return rng.choice(list(self.cells))
-    
+
     def get_center(self) -> HexCoord:
         """Get the center cell of the grid."""
-        return HexCoord(0, 0, 0)
-    
+        return self.center_coord # Return stored center coordinate
+
     def get_distance(self, coord1: HexCoord, coord2: HexCoord) -> int:
         """Get the distance between two cells."""
         return coord1.distance(coord2)

@@ -2,8 +2,9 @@
 HexQueenPuzzle class to represent hexagonal queen puzzles.
 """
 from typing import Dict, List, Set, Tuple, Optional
-
+import matplotlib.pyplot as plt
 from .hex_grid import HexGrid, HexCoord
+from .puzzle_visualizer import draw_hex_grid
 
 class HexQueenPuzzle:
     """
@@ -31,9 +32,6 @@ class HexQueenPuzzle:
             show_pieces: Whether to display queen pieces on the visualization.
             title: Title for the plot.
         """
-        import matplotlib.pyplot as plt
-        from .puzzle_visualizer import draw_hex_grid
-
         fig, ax = plt.subplots(figsize=(10, 10))
         draw_hex_grid(ax, self.grid, self.cell_regions, self.queen_positions if show_pieces else {}, show_pieces=show_pieces, title=title)
         plt.tight_layout()

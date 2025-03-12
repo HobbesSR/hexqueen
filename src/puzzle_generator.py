@@ -6,6 +6,8 @@ from typing import Dict, List, Set, Tuple, Optional
 from collections import defaultdict, deque
 
 from .hex_grid import HexGrid, HexCoord
+from .solver import PuzzleSolver
+from .hex_queen_puzzle import HexQueenPuzzle
 
 class PuzzleGenerator:
     """
@@ -23,8 +25,6 @@ class PuzzleGenerator:
         self.grid = grid
         self.num_regions = num_pieces
         self.rng = random.Random(seed)
-        self.debug = True
-        
         
         # Puzzle state
         self.region_seeds = {}  # Maps region_id -> HexCoord
@@ -85,42 +85,58 @@ class PuzzleGenerator:
     
     def grow_regions(self) -> bool:
         """
-        Grow regions until the entire board is covered.
+        Grow regions until the entire board is covered using a priority-based system.
         
         Returns:
             bool: True if regions were grown successfully, False otherwise
         """
+        from heapq import heappush, heappop
+        
+        # Initialize priority queues for regions based on frontier size
+        region_pq = []
+        for region_id, frontier in self.region_frontiers.items():
+            if frontier:
+                # Priority is based on negative frontier size (larger frontiers are lower priority)
+                heappush(region_pq, (len(frontier), region_id))
+        
         # Continue until all cells are assigned to a region
         while len(self.cell_regions) < len(self.grid.get_all_cells()):
-            # If any region has no frontier, the puzzle can't be completed
-            if any(not frontier for frontier in self.region_frontiers.values()):
+            if not region_pq:
                 return False
             
-            # Choose a random region to grow
-            active_regions = [r for r, f in self.region_frontiers.items() if f]
-            if not active_regions:
-                return False
+            # Get the region with the smallest frontier (highest priority)
+            _, region_id = heappop(region_pq)
+            frontier = self.region_frontiers[region_id]
             
-            region_id = self.rng.choice(active_regions)
-            frontier = list(self.region_frontiers[region_id])
-            
-            # Choose a random frontier cell
             if not frontier:
-                return False
+                continue
             
-            cell = self.rng.choice(frontier)
+            # Use a priority queue for frontier cells based on distance from seed
+            cell_pq = []
+            seed = self.region_seeds[region_id]
+            for cell in frontier:
+                distance = self.grid.get_distance(cell, seed)
+                heappush(cell_pq, (distance, cell))
+            
+            # Select the cell closest to the seed
+            _, cell = heappop(cell_pq)
             
             # Add the cell to the region
             self.regions[region_id].add(cell)
             self.cell_regions[cell] = region_id
             self.region_frontiers[region_id].remove(cell)
             
+            # Update region priority queue
+            new_frontier_size = len(self.region_frontiers[region_id])
+            heappush(region_pq, (new_frontier_size, region_id))
+            
             # Update frontiers
             for neighbor in self.grid.get_neighbors(cell):
                 if neighbor not in self.cell_regions:
                     self.region_frontiers[region_id].add(neighbor)
+                    heappush(cell_pq, (self.grid.get_distance(neighbor, seed), neighbor))
                 elif self.cell_regions[neighbor] != region_id:
-                    # If neighbor belongs to another region, ensure it's not in our frontier
+                    # Remove from current region's frontier if claimed by another
                     if neighbor in self.region_frontiers[region_id]:
                         self.region_frontiers[region_id].remove(neighbor)
         
@@ -166,8 +182,6 @@ class PuzzleGenerator:
         Returns:
             Tuple[bool, bool]: (is_unique, is_logically_solvable)
         """
-        from .solver import PuzzleSolver
-        
         # Create a solver with only piece positions as clues
         solver = PuzzleSolver(self.grid, self.num_regions)
         solver.initialize_from_clues(self.region_seeds)
@@ -228,7 +242,6 @@ class PuzzleGenerator:
                     continue
             
             # If we get here, the puzzle is valid and meets all requirements
-            from .hex_queen_puzzle import HexQueenPuzzle
             return HexQueenPuzzle(self.grid, self.region_seeds, self.cell_regions)
         
         # If we've exceeded max retries, return None
