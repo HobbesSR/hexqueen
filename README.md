@@ -1,125 +1,22 @@
-# HexQueen Puzzle Generator and Queen Placer
+# HexQueen Project
 
-## Overview
-HexQueen is a comprehensive puzzle generation project that creates engaging hexagonal grid puzzles. It includes modules for generating puzzles with unique solutions, placing queens on the grid so that no two threaten each other, and rendering puzzle pages for both digital viewing and printable output. Features include:
-- Generating hexagonal grids using cube coordinates.
-- Creating puzzles with region growth.
-- Ensuring contiguity of regions and a logical solution.
-- Strategic queen placement using random or backtracking methods.
-- Generating puzzle pages as images and PDFs with multiple puzzles per sheet.
+A hexagonal grid puzzle generator and solver.
 
-## Hexagonal Grid (hex_grid.py)
-The HexGrid module provides the infrastructure for managing a hexagonal grid using cube coordinates (where x + y + z = 0). It includes capabilities to generate grid cells, determine neighbors, and calculate distances.
+Key features include puzzle generation based on radius, ensuring puzzle validity, unique solutions, and logical solvability. The project supports multiple output formats, including PNG images, PDF documents, and JSON data for application integration.
 
-## Puzzle Generation (puzzle_generator.py)
-This module creates puzzles on a hexagonal grid ensuring a unique and logically solvable layout. Key functionalities include:
-- Puzzle generation with region growth.
-- Ensuring contiguity of regions.
-- Validating the uniqueness and solvability of puzzles.
+## Documentation Structure
+Requirements are organized using a hierarchical, modular Markdown system:
 
-## Key Terminology
-
-### Logical Solvability
-A puzzle is logically solvable if it can be solved using the implemented logical deduction techniques (naked singles, hidden singles, region contiguity, etc.) without resorting to brute-force guessing. This ensures that players can solve the puzzle through reasoning alone, making it more engaging and satisfying.
-
-### Clues
-Clues are the region assignments for each cell in the grid, which guide the player to deduce the queen placements. These are also referred to as "fixed cells" in the codebase. The initial region seeds serve as the starting point for generating these clues.
-
-## Queen Placement (queen_placer.py)
-The Queen Placer module strategically positions queens on the grid so that no two queens can attack each other. It features:
-- Random queen placements that adhere to non-attacking constraints.
-- A backtracking approach if initial placements fail.
-- Functions to determine available cells and update attack zones.
-
-## Puzzle Page Generation (puzzle_page_generator.py)
-This module generates visual representations of puzzles and their solutions, leveraging the core puzzle logic in `hex_queen_puzzle.py`. It supports:
-- Rendering puzzles on an 8x11 inch page using matplotlib.
-- Generating solution pages that display the completed puzzle with pieces or queens.
-- Batch generation of puzzle pages.
-- Optional PDF generation featuring multiple puzzles per sheet.
-
-## HexQueen Puzzle (hex_queen_puzzle.py)
-This module encapsulates the core logic for representing and solving the HexQueen puzzle. It provides classes and functions for:
-- Defining the puzzle state.
-- Implementing solving algorithms.
-- Validating puzzle solutions.
-
-## Usage Examples
-
-### Exporting Puzzles to JSON
-The `HexQueenPuzzle` class now includes a `to_json` method that serializes the puzzle to a JSON string. The `main.py` script has been updated to export generated puzzles to a `puzzle.json` file.
-
-To generate a puzzle and export it to a JSON file, run the `run.py` script with the desired options:
-```bash
-python run.py --radius 5
 ```
-This will generate a puzzle with a radius of 5 and save it to `puzzle.json`.
-
-### Puzzle Generation and Queen Placement
-```python
-from src.hex_grid import HexGrid
-from src.puzzle_generator import PuzzleGenerator
-from src.queen_placer import QueenPlacer
-from src.hex_queen_puzzle import HexQueenPuzzle
-
-# Generate a puzzle
-grid = HexGrid(radius=5)
-generator = PuzzleGenerator(grid, num_pieces=4, seed=42)
-if generator.generate_puzzle():
-    puzzle = generator.get_puzzle_state()
-    print("Generated Puzzle:", puzzle)
-
-    # Create a HexQueenPuzzle instance
-    hex_queen_puzzle = HexQueenPuzzle(grid, puzzle)
-    print("HexQueenPuzzle:", hex_queen_puzzle)
-else:
-    print("Failed to generate a valid puzzle.")
-
-# Place queens on the grid
-placer = QueenPlacer(grid, num_queens=4, seed=42)
-if placer.place_queens():
-    queens = placer.get_queen_positions()
-    print("Queen Positions:", queens)
-else:
-    print("Failed to place queens without conflicts.")
+docs/requirements/
+├── index.md               # Main documentation index
+├── 100-199_Overview.md
+├── 200-299_Functional/
+│   ├── 210_Puzzle_Generation.md
+│   ├── 220_Output_Formats.md
+│   └── 230_JSON_Specification.md
+├── 300-399_Non-functional.md
+└── 400-499_Constraints_Assumptions.md
 ```
 
-### Puzzle Page Generation and PDF Output
-Run the puzzle page generator from the command line:
-```bash
-python src/puzzle_page_generator.py --num_puzzles 3 --grid_radius 3 --output output_folder --seed 1234
-```
-For PDF output with multiple puzzles per page, add the `--pdf` flag along with `--rows` and `--columns`:
-```bash
-python src/puzzle_page_generator.py --num_puzzles 6 --grid_radius 3 --output output_folder --seed 1234 --pdf --rows 2 --columns 3
-```
-
-### Main Script Usage
-The `run.py` script serves as the entry point for running HexQueen. To generate a puzzle and export it to a JSON file, run:
-```bash
-python run.py --radius 5
-```
-This will generate a puzzle with a radius of 5 and save it to `puzzle.json`.
-
-To display the available options, run:
-```bash
-python run.py --help
-```
-You can customize command line arguments to run different components of the project.
-
-For internal tracking of agent goals and in-progress tasks, refer to the [AGENT_README.md](AGENT_README.md) file, which serves as a scratch pad for AI agent task management.
-
-## Testing and Validation
-Run the tests using:
-```bash
-python -m unittest tests/test.py
-```
-
-## Dependencies
-Refer to `requirements.txt` for the list of required packages, including matplotlib and numpy.
-
-## Contributing
-Contributions are welcome. Fork the repository and submit pull requests to enhance puzzle generation, queen placement strategies, and page rendering functionalities.
-
-## License
-This project is licensed under the MIT License.
+See [docs/requirements/index.md](docs/requirements/index.md) for full details.

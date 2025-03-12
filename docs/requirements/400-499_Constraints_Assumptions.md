@@ -1,15 +1,11 @@
 # 400-499: Constraints & Assumptions
 
-## 410: Puzzle Constraints
+This section outlines the constraints and assumptions for the HexQueen project.
 
-*   **411: Radius-based Size:**
-    *   Puzzle size and complexity are primarily determined by the `radius` parameter.
-*   **412: Queen Count:**
-    *   The number of queens in the puzzle is implicitly determined by the `radius`.
+## Puzzle Constraints
+<!-- Subsections could be added here later -->
+Puzzle size and complexity are determined by the `radius` parameter. The number of queens is implicitly determined by the radius.
 
-## 420: Assumptions
-
-*   **421: Input Parameter:**
-    *   It is assumed that the primary input parameter for puzzle generation is the `radius`.
-*   **422: JSON Consumption:**
-    *   It is assumed that the JSON output will be consumed by another application (the puzzle app).
+## Assumptions
+<!-- Subsections could be added here later -->
+The primary input parameter for puzzle generation is assumed to be the `radius`. It is also assumed that the JSON output will be consumed by a puzzle application.

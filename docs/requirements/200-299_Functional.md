@@ -1,41 +1,15 @@
 # 200-299: Functional Requirements
 
-## 210: Puzzle Generation
+This section details the functional requirements for the HexQueen project, covering puzzle generation, output formats, and JSON specification.
 
-*   **211: Puzzle Parameter:**
-    *   Puzzles are generated based on a `radius` parameter, which determines the puzzle size and the number of queens.
-*   **212: Puzzle Validity:**
-    *   Generated puzzles must be valid HexQueen puzzles.
-*   **213: Unique Solution:**
-    *   Generated puzzles must have a unique solution.
-*   **214: Logical Solvability:**
-    *   Generated puzzles must be solvable using logical inferences.
+## Puzzle Generation
+[See detailed requirements in 210_Puzzle_Generation.md](200-299_Functional/210_Puzzle_Generation.md)
+Puzzles are generated based on a `radius` parameter. They must be valid HexQueen configurations, have a unique solution, and be solvable using logical inferences.
 
-## 220: Output Formats
+## Output Formats
+[See detailed requirements in 220_Output_Formats.md](200-299_Functional/220_Output_Formats.md)
+The system should generate puzzles in PNG image format (with solution toggle), PDF document format (configurable puzzles per page), and JSON format for application integration.
 
-*   **221: PNG Output:**
-    *   Generate puzzle images in PNG format, with options for including or excluding the solution.
-*   **222: PDF Output:**
-    *   Generate puzzle documents in PDF format, allowing configuration of puzzles per page (rows and columns).
-*   **223: JSON Output:**
-    *   Generate puzzle data in JSON format for application integration.
-
-## 230: JSON Output Specification
-
-*   **231: JSON Structure:**
-    ```json
-    {
-      "grid_radius": <int>,
-      "num_regions": <int>,
-      "region_seeds": {
-        "<region_id>": [<x>, <y>, <z>],  // Cube coordinates [x, y, z]
-        "...": [...]
-      },
-      "cell_regions": {
-        " [<x>, <y>, <z>]": <region_id>, // Cube coordinates [x, y, z]
-        "...": ...
-      }
-    }
-    ```
-*   **232: Coordinate System:**
-    *   Cube Coordinates are used to represent hexagonal grid cells. Each cell is identified by three coordinates [x, y, z] where x + y + z = 0.
+## JSON Specification
+[See detailed requirements in 230_JSON_Specification.md](200-299_Functional/230_JSON_Specification.md)
+Puzzle data is exported in JSON format, including grid radius, number of regions, region seeds, and cell regions, using a cube coordinate system.
