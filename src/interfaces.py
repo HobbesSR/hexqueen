@@ -54,5 +54,3 @@ class PuzzleSpecification:
     queen_positions: Dict[int, HexCoord] = field(default_factory=dict)
     region_constraints: Dict = field(default_factory=dict)
     seed: Optional[int] = None
-    ensure_unique: bool = True
-    ensure_logical: bool = True

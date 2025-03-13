@@ -149,8 +149,6 @@ def generate_puzzle_with_queens(grid: HexGrid, seed: Optional[int] = None, max_a
         grid=grid,
         num_regions=num_queens,
         seed=seed,
-        ensure_unique=True,
-        ensure_logical=True
     )
     
     # Generate a puzzle

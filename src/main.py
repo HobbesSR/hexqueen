@@ -108,14 +108,13 @@ def demonstrate_queen_placement(grid_radius: int, seed: Optional[int] = None):
     
     return
 
-def demonstrate_reverse_engineering(grid_radius: int, seed: Optional[int] = None, ensure_logical: bool = True):
+def demonstrate_reverse_engineering(grid_radius: int, seed: Optional[int] = None):
     """
     Demonstrate the puzzle generation process using the new architecture.
     
     Args:
         grid_radius: Radius of the hexagonal grid
         seed: Random seed for reproducibility
-        ensure_logical: Whether to ensure the puzzle is solvable using only logical techniques
     """
     num_regions = calculate_recommended_queens(grid_radius)
     print(f"Demonstrating puzzle generation with grid radius {grid_radius} and {num_regions} regions...")
@@ -132,8 +131,6 @@ def demonstrate_reverse_engineering(grid_radius: int, seed: Optional[int] = None
         grid=grid,
         num_regions=num_regions,
         seed=seed,
-        ensure_unique=True,
-        ensure_logical=ensure_logical
     )
     
     # Generate a complete puzzle
@@ -187,8 +184,6 @@ def main():
     parser.add_argument("--radius", type=int, default=3, help="Radius of the hexagonal grid")
     parser.add_argument("--seed", type=int, default=None, help="Random seed for reproducibility")
     parser.add_argument("--output", type=str, default=".", help="Output directory for saved images")
-    parser.add_argument("--ensure-unique", action="store_true", default=True, help="Ensure the puzzle has a unique solution")
-    parser.add_argument("--ensure-logical", action="store_true", default=True, help="Ensure the puzzle is solvable using only logical techniques")
     parser.add_argument("--generate-puzzle", action="store_true", help="Generate a complete puzzle using the region generator")
     args = parser.parse_args()
     
@@ -199,7 +194,7 @@ def main():
         os.makedirs(args.output)
     
     if args.generate_puzzle:
-        demonstrate_reverse_engineering(args.radius, args.seed, args.ensure_logical)
+        demonstrate_reverse_engineering(args.radius, args.seed)
     else:
         # Default behavior: demonstrate queen placement
         demonstrate_queen_placement(args.radius, args.seed)
