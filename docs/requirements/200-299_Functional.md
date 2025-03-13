@@ -6,6 +6,10 @@ This section details the functional requirements for the HexQueen project, cover
 [See detailed requirements in 210_Puzzle_Generation.md](200-299_Functional/210_Puzzle_Generation.md)
 Puzzles are generated based on a `radius` parameter. They must be valid HexQueen configurations, have a unique solution, and be solvable using logical inferences.
 
+## DLX Solver
+[See detailed requirements in 215_DLX_Solver.md](200-299_Functional/215_DLX_Solver.md)
+The system uses Knuth's Algorithm X with Dancing Links (DLX) to solve exact cover problems for hexagonal grid queen placement. Queen placement is formulated as an exact cover problem where constraints ensure no two queens attack each other.
+
 ## Output Formats
 [See detailed requirements in 220_Output_Formats.md](200-299_Functional/220_Output_Formats.md)
 The system should generate puzzles in PNG image format (with solution toggle), PDF document format (configurable puzzles per page), and JSON format for application integration.
