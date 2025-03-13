@@ -28,6 +28,7 @@ class RuleValidator:
             True if no queens can see each other, False otherwise
         """
         queens = list(queen_positions.values())
+        print(f"Checking visibility for {len(queens)} queens")
         
         # Check each pair of queens
         for i in range(len(queens)):
@@ -36,11 +37,17 @@ class RuleValidator:
                 queen2 = queens[j]
                 
                 # Check if queens are in the same line (same x, y, or z coordinate)
-                if (queen1.x == queen2.x or 
-                    queen1.y == queen2.y or 
-                    queen1.z == queen2.z):
+                if queen1.x == queen2.x:
+                    #print(f"Queens at {queen1} and {queen2} share x-coordinate: {queen1.x}")
+                    return False
+                if queen1.y == queen2.y:
+                    #print(f"Queens at {queen1} and {queen2} share y-coordinate: {queen1.y}")
+                    return False
+                if queen1.z == queen2.z:
+                    #print(f"Queens at {queen1} and {queen2} share z-coordinate: {queen1.z}")
                     return False
         
+        print("All queens are correctly placed - no visibility conflicts")
         return True
     
     @staticmethod

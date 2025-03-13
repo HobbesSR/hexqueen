@@ -16,10 +16,9 @@ from .growth_region_generator import GrowthRegionGenerator
 from .interfaces import PuzzleSpecification
 from .puzzle_visualizer import (
     hex_to_pixel, draw_hexagon, draw_queen, get_region_color,
-    grow_regions_from_queens, check_regions_contiguity,
-    calculate_recommended_queens, generate_puzzle_with_queens,
-    draw_hex_grid
+    calculate_recommended_queens, draw_hex_grid
 )
+from .puzzle_generator import generate_puzzle_with_queens
 from .hex_queen_puzzle import HexQueenPuzzle
 from .rule_validator import RuleValidator
 
@@ -42,32 +41,16 @@ def demonstrate_queen_placement(grid_radius: int, seed: Optional[int] = None):
     region_generator = GrowthRegionGenerator(seed)
     generator = PuzzleGenerator(region_generator)
     
-    # Place queens manually
-    rng = random.Random(seed)
-    queen_positions = {}
-    all_cells = list(grid.get_all_cells())
-    rng.shuffle(all_cells)
+    # Place queens using QueenPlacer
+    from .queen_placer import QueenPlacer
     
-    # Place queens with minimum distance between them
-    min_distance = max(1, grid.radius // (num_regions ** 0.5))
-    placed_queens = []
-    
-    for cell in all_cells:
-        # Check if this cell is far enough from existing queens
-        if all(grid.get_distance(cell, pos) >= min_distance for pos in placed_queens):
-            region_id = len(placed_queens)
-            queen_positions[region_id] = cell
-            placed_queens.append(cell)
-            
-            # Check if we've placed all queens
-            if len(placed_queens) == num_regions:
-                break
-    
-    if len(queen_positions) != num_regions:
+    placer = QueenPlacer(grid, num_regions, seed)
+    if not placer.place_queens():
         print(f"Failed to place {num_regions} queens on a grid of radius {grid_radius}.")
         return
     
-    print(f"Queens placed successfully.")
+    queen_positions = placer.get_queen_positions()
+    print(f"Queens placed successfully using QueenPlacer.")
     
     # Create a puzzle with just the queens (no regions yet)
     # Use a temporary cell_regions mapping for visualization

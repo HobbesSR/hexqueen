@@ -12,9 +12,9 @@ from src.hex_grid import HexGrid, HexCoord
 from src.puzzle_visualizer import (
     hex_to_pixel, draw_hexagon, draw_queen, get_region_color,
     grow_regions_from_queens, check_regions_contiguity,
-    calculate_recommended_queens, generate_puzzle_with_queens,
-    draw_hex_grid
+    calculate_recommended_queens, draw_hex_grid
 )
+from src.puzzle_generator import generate_puzzle_with_queens
 
 class PuzzlePage:
     """
@@ -34,7 +34,7 @@ class PuzzlePage:
         self.figure_width = 8
         self.figure_height = 11
 
-    def create_page(self, page_number: int, seed: Optional[int] = None) -> List[str]:
+    def create_page(self, page_number: int, seed: Optional[int] = None) -> Optional[List[str]]:
         """
         Create a pair of pages for a puzzle and its solution using queen placements.
         
@@ -43,7 +43,8 @@ class PuzzlePage:
             seed: Random seed for reproducibility.
         
         Returns:
-            List of generated filenames: [puzzle_page_filename, solution_page_filename].
+            List of generated filenames: [puzzle_page_filename, solution_page_filename],
+            or None if puzzle generation failed.
         """
         grid = HexGrid(self.grid_radius)
         
@@ -51,7 +52,8 @@ class PuzzlePage:
         success, grid, cell_regions, queen_positions = generate_puzzle_with_queens(grid, seed)
         
         if not success:
-            raise Exception("Failed to generate a valid queen puzzle after several attempts.")
+            print(f"Warning: Failed to generate a valid queen puzzle for radius {self.grid_radius} (seed: {seed})")
+            return None
         
         # In queen mode, the queen positions serve as the clues.
         piece_positions = queen_positions
@@ -77,7 +79,7 @@ class PuzzlePage:
         
         return [puzzle_filename, solution_filename]
 
-    def generate_puzzle_data(self, seed: Optional[int] = None) -> Tuple[HexGrid, Dict, Dict]:
+    def generate_puzzle_data(self, seed: Optional[int] = None) -> Optional[Tuple[HexGrid, Dict, Dict]]:
         """
         Generate puzzle data using queen placements without rendering, returning the grid, cell regions, and queen positions.
         
@@ -85,7 +87,7 @@ class PuzzlePage:
             seed: Random seed for reproducibility.
             
         Returns:
-            Tuple of (grid, cell_regions, queen_positions)
+            Tuple of (grid, cell_regions, queen_positions), or None if generation failed
         """
         grid = HexGrid(self.grid_radius)
         
@@ -93,7 +95,8 @@ class PuzzlePage:
         success, grid, cell_regions, queen_positions = generate_puzzle_with_queens(grid, seed)
         
         if not success:
-            raise Exception("Failed to generate a valid queen puzzle after several attempts.")
+            print(f"Warning: Failed to generate a valid queen puzzle for radius {self.grid_radius} (seed: {seed})")
+            return None
         
         return grid, cell_regions, queen_positions
 
@@ -132,11 +135,30 @@ def batch_generate_puzzles(num_puzzles: int, grid_radius: int, output_path: str 
         seed: Random seed for reproducibility.
     """
     rng = random.Random(seed)
-    for puzzle_number in range(num_puzzles):
+    successful_puzzles = 0
+    max_attempts = num_puzzles * 2  # Allow for some failures
+    
+    print(f"Attempting to generate {num_puzzles} puzzles with grid radius {grid_radius}")
+    
+    for attempt in range(max_attempts):
+        if successful_puzzles >= num_puzzles:
+            break
+            
         page = PuzzlePage(grid_radius, output_path=output_path)
         # Use a consistent seed derivation method
-        current_seed = None if seed is None else seed + puzzle_number
-        page.create_page(puzzle_number, current_seed)
+        current_seed = None if seed is None else seed + attempt
+        
+        result = page.create_page(successful_puzzles, current_seed)
+        if result is not None:
+            successful_puzzles += 1
+            print(f"Successfully generated puzzle {successful_puzzles}/{num_puzzles}")
+        else:
+            print(f"Failed to generate puzzle (attempt {attempt+1})")
+    
+    if successful_puzzles < num_puzzles:
+        print(f"Warning: Only generated {successful_puzzles}/{num_puzzles} puzzles after {max_attempts} attempts")
+    else:
+        print(f"Successfully generated all {num_puzzles} puzzles")
 
 def batch_generate_puzzles_pdf(num_puzzles: int, grid_radius: int, output_path: str = ".", seed: Optional[int] = None, rows: int = 1, columns: int = 1):
     """
@@ -154,12 +176,34 @@ def batch_generate_puzzles_pdf(num_puzzles: int, grid_radius: int, output_path: 
     rng = random.Random(seed)
     puzzle_data_list = []
     
-    for puzzle_number in range(num_puzzles):
+    print(f"Attempting to generate {num_puzzles} puzzles with grid radius {grid_radius} for PDF")
+    
+    successful_puzzles = 0
+    max_attempts = num_puzzles * 2  # Allow for some failures
+    
+    for attempt in range(max_attempts):
+        if successful_puzzles >= num_puzzles:
+            break
+            
         page = PuzzlePage(grid_radius, output_path)
         # Use a consistent seed derivation method
-        current_seed = None if seed is None else seed + puzzle_number
+        current_seed = None if seed is None else seed + attempt
+        
         data = page.generate_puzzle_data(current_seed)
-        puzzle_data_list.append(data)
+        if data is not None:
+            puzzle_data_list.append(data)
+            successful_puzzles += 1
+            print(f"Successfully generated puzzle data {successful_puzzles}/{num_puzzles}")
+        else:
+            print(f"Failed to generate puzzle data (attempt {attempt+1})")
+    
+    if successful_puzzles < num_puzzles:
+        print(f"Warning: Only generated {successful_puzzles}/{num_puzzles} puzzles after {max_attempts} attempts")
+        if successful_puzzles == 0:
+            print("No puzzles could be generated. Aborting PDF creation.")
+            return
+        # Adjust num_puzzles to match what we actually generated
+        num_puzzles = successful_puzzles
     
     puzzles_pdf_path = os.path.join(output_path, "puzzles.pdf")
     solutions_pdf_path = os.path.join(output_path, "solutions.pdf")

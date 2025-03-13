@@ -48,6 +48,21 @@ classDiagram
     PuzzleGenerator --> IRegionGenerator
     PuzzleGenerator --> PuzzleSpecification
     PuzzleGenerator --> HexQueenPuzzle
+    PuzzleGenerator --> RuleValidator
     GrowthRegionGenerator ..|> IRegionGenerator
     GrowthRegionGenerator --> RuleValidator
     GrowthRegionGenerator --> HexGrid
+    
+    class PuzzlePage {
+        +create_page()
+        +batch_generate_puzzles_pdf()
+    }
+    
+    class RuleValidator {
+        +check_queen_visibility(...)
+        +check_region_contiguity(...)
+        +check_hex_grid_constraints(...)
+    }    
+
+    PuzzlePage --> HexQueenPuzzle
+    PuzzlePage --> PuzzleVisualizer

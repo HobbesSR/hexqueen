@@ -7,6 +7,7 @@ from typing import Dict, List, Set, Tuple, Optional
 from .hex_grid import HexGrid, HexCoord
 from .hex_queen_puzzle import HexQueenPuzzle
 from .interfaces import IRegionGenerator, PuzzleSpecification
+from .queen_placer import QueenPlacer
 
 class PuzzleGenerator:
     """
@@ -64,7 +65,7 @@ class PuzzleGenerator:
         """
         Place queens randomly on the grid ensuring they can't see each other.
         
-        Queens can see each other if they share the same x, y, or z coordinate.
+        Uses the QueenPlacer class to place queens consistently across the application.
         
         Args:
             grid: The hexagonal grid
@@ -74,43 +75,90 @@ class PuzzleGenerator:
         Returns:
             Dictionary mapping region IDs to queen positions, or empty dict if placement failed
         """
-        retry_count = 0
+        print(f"Attempting to place {num_regions} queens on a grid with radius {grid.radius}")
+        print(f"Total cells in grid: {len(grid.get_all_cells())}")
         
-        while retry_count < self.max_retries:
-            queen_positions = {}
-            all_cells = list(grid.get_all_cells())
+        # Create a seed from the random number generator's state
+        seed_value = None
+        if rng is not None:
+            # Get a value from the RNG to use as a seed
+            seed_value = rng.randint(0, 1000000)
+        
+        # Create a QueenPlacer instance
+        placer = QueenPlacer(grid, num_regions, seed_value)
+        
+        # Try to place queens using the QueenPlacer
+        if placer.place_queens(max_attempts=self.max_retries):
+            queen_positions = placer.get_queen_positions()
             
-            # Shuffle cells for random placement
-            rng.shuffle(all_cells)
-            
-            # Place queens with minimum distance between them
-            min_distance = max(1, grid.radius // (num_regions ** 0.5))
-            placed_queens = []
-            
-            for cell in all_cells:
-                # Check if this cell is far enough from existing queens
-                if all(cell.distance(pos) >= min_distance for pos in placed_queens):
-                    # Check if queens can see each other (share same x, y, or z coordinate)
-                    if not any(cell.x == pos.x or cell.y == pos.y or cell.z == pos.z for pos in placed_queens):
-                        region_id = len(placed_queens)
-                        queen_positions[region_id] = cell
-                        placed_queens.append(cell)
-                        
-                        # Check if we've placed all queens
-                        if len(placed_queens) == num_regions:
-                            # Verify that all queens are correctly placed
-                            from .rule_validator import RuleValidator
-                            if RuleValidator.check_queen_visibility(grid, queen_positions):
-                                return queen_positions
-                            else:
-                                # If validation fails, try again
-                                break
-            
-            # If we get here, we couldn't place all queens, so try again
-            retry_count += 1
-            if retry_count % 10 == 0:
-                print(f"Retry {retry_count}: Placed {len(placed_queens)}/{num_regions} queens")
+            # Verify that all queens are correctly placed
+            from .rule_validator import RuleValidator
+            if RuleValidator.check_queen_visibility(grid, queen_positions):
+                print(f"Successfully placed all {num_regions} queens")
+                return queen_positions
+            else:
+                print(f"Queen visibility validation failed after placing all queens")
         
         # If we've exceeded max retries, return empty dict
         print(f"Failed to place queens after {self.max_retries} retries")
+        print(f"Grid radius: {grid.radius}, Number of queens: {num_regions}")
         return {}
+
+
+def generate_puzzle_with_queens(grid: HexGrid, seed: Optional[int] = None, max_attempts: int = 3):
+    """
+    Generate a puzzle using queen placements.
+    
+    This function uses the PuzzleGenerator class to ensure consistent puzzle generation
+    across the application.
+    
+    Args:
+        grid: The hexagonal grid
+        seed: Random seed for reproducibility
+        max_attempts: Maximum number of attempts to generate a valid puzzle
+        
+    Returns:
+        Tuple of (success, grid, cell_regions, queen_positions)
+    """
+    from .growth_region_generator import GrowthRegionGenerator
+    from .interfaces import PuzzleSpecification
+    
+    # Import calculate_recommended_queens from puzzle_visualizer
+    # This avoids circular imports
+    from .puzzle_visualizer import calculate_recommended_queens
+    
+    # Scale max_attempts based on grid radius for larger grids
+    if grid.radius > 8:
+        max_attempts = max(max_attempts, grid.radius * 2)
+    
+    print(f"Attempting to generate puzzle with radius {grid.radius}, "
+          f"queens {calculate_recommended_queens(grid.radius)}, max attempts {max_attempts}")
+    
+    # Create region generator and puzzle generator
+    region_generator = GrowthRegionGenerator(seed)
+    generator = PuzzleGenerator(region_generator)
+    
+    # Set max retries for the generator
+    generator.max_retries = max_attempts * 100  # Give it plenty of attempts
+    
+    # Calculate recommended number of queens
+    num_queens = calculate_recommended_queens(grid.radius)
+    
+    # Create puzzle specification
+    spec = PuzzleSpecification(
+        grid=grid,
+        num_regions=num_queens,
+        seed=seed,
+        ensure_unique=True,
+        ensure_logical=True
+    )
+    
+    # Generate a puzzle
+    puzzle = generator.generate_puzzle(spec)
+    
+    if puzzle:
+        print(f"Successfully generated puzzle")
+        return True, grid, puzzle.cell_regions, puzzle.queen_positions
+    else:
+        print(f"Failed to generate puzzle after {max_attempts} attempts")
+        return False, grid, {}, {}
