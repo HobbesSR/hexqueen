@@ -179,6 +179,24 @@ def demonstrate_reverse_engineering(grid_radius: int, seed: Optional[int] = None
 
     return
 
+def serve_game(port: int) -> None:
+    """Serve the browser game in ../web and open it."""
+    import functools
+    import http.server
+    import webbrowser
+
+    web_dir = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "web")
+    handler = functools.partial(http.server.SimpleHTTPRequestHandler, directory=web_dir)
+    with http.server.ThreadingHTTPServer(("127.0.0.1", port), handler) as httpd:
+        url = f"http://127.0.0.1:{port}/"
+        print(f"HexQueen is running at {url}  (Ctrl+C to stop)")
+        webbrowser.open(url)
+        try:
+            httpd.serve_forever()
+        except KeyboardInterrupt:
+            print("\nStopped.")
+
+
 def main():
     """Main function to parse arguments and run the program."""
     parser = argparse.ArgumentParser(description="Hexagonal Puzzle Generator")
@@ -189,7 +207,13 @@ def main():
                         help="Hardest deduction a solver may need (1=easy .. 4=hard)")
     parser.add_argument("--verbose", action="store_true", help="Show detailed generator logging")
     parser.add_argument("--generate-puzzle", action="store_true", help="Generate a complete puzzle using the region generator")
+    parser.add_argument("--play", action="store_true", help="Serve the playable web game and open it in a browser")
+    parser.add_argument("--port", type=int, default=8000, help="Port for --play (default 8000)")
     args = parser.parse_args()
+
+    if args.play:
+        serve_game(args.port)
+        return
     import logging
     logging.basicConfig(level=logging.DEBUG if args.verbose else logging.WARNING, format="%(name)s: %(message)s")
     

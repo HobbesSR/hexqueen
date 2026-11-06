@@ -4,7 +4,49 @@ A hexagonal grid puzzle generator and solver.
 
 Key features include puzzle generation based on radius, ensuring puzzle validity, **guaranteed unique solutions**, and **guaranteed logical solvability** (with a difficulty rating). The project supports multiple output formats, including PNG images, PDF documents, and JSON data for application integration.
 
-## How Puzzles Are Generated
+## Play It
+
+The `web/` folder is a complete, dependency-free browser game:
+
+```bash
+python run.py --play          # serves web/ on http://127.0.0.1:8000 and opens it
+```
+
+(Any static file server works too, e.g. `python -m http.server -d web`.)
+
+- **Daily puzzle** with a streak. Like a newspaper crossword it is gentlest on Monday and hardest on Saturday.
+- **Endless puzzles** at four levels, generated in the browser in a few milliseconds:
+
+  | Level  | Board            | Needs                                  |
+  |--------|------------------|----------------------------------------|
+  | Easy   | radius 3, 7 queens  | last-spot and boxed-in deductions   |
+  | Medium | radius 4, 9 queens  | + crossfire (shared attacks)        |
+  | Hard   | radius 5, 11 queens | + locked pairs                      |
+  | Expert | radius 6, 13 queens | + locked trios/fours or a short "what if?" |
+
+- **Hints that teach**: each hint names the deduction, highlights the cells involved and can apply it.
+  Mistakes (a wrong queen, a crossed-out solution cell) are pointed out first.
+- Tap to cycle × / queen, drag to mark many ×, undo/redo, auto-cross, clash highlighting, a timer,
+  statistics, keyboard play, light and dark themes, and progress that survives reloads.
+- **Shareable puzzles**: every puzzle has a code such as `#hard-k3x9qa`; the same code always builds the same board.
+- **Python puzzles**: Settings → *Play a puzzle from the Python generator* accepts a `puzzle.json`.
+
+Engine: `web/js/hexqueen-core.js` (geometry, exhaustive solver, human-style logical solver, generator).
+Tests: `node --test web/test/core.test.js`.
+
+### How the web generator works
+
+1. Pick a random non-attacking queen layout (the hidden solution).
+2. Grow a region around each queen with uneven growth rates, so sizes vary like hand-made boards.
+3. Hill-climb on region boundaries. Each candidate is scored by (extra solutions, cells the capped
+   logical solver can't resolve, too-easy flag), and moves that don't make it worse are kept.
+4. The logical solver always uses the easiest technique that works, so the hardest one it needed
+   is the difficulty. A puzzle is accepted only when it is solvable with the level's techniques
+   *and* needs the level's hardest one. Several candidates are made and the most interesting kept.
+
+Solving to completion by deduction proves the solution is unique; the exhaustive solver double-checks.
+
+## How Puzzles Are Generated (Python)
 
 1. **Queens** - `QueenPlacer` (DLX) picks a random non-attacking layout: the hidden solution.
 2. **Regions** - `GrowthRegionGenerator` grows one contiguous region around each queen.
