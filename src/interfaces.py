@@ -54,3 +54,10 @@ class PuzzleSpecification:
     queen_positions: Dict[int, HexCoord] = field(default_factory=dict)
     region_constraints: Dict = field(default_factory=dict)
     seed: Optional[int] = None
+    # Quality guarantees (requirements 213 / 214). Both are enforced by
+    # refining the region layout, not by rejection sampling.
+    require_unique: bool = True
+    require_logical: bool = True
+    # Largest deduction set size the player may need (1=easy ... 4=hard).
+    max_difficulty: int = 3
+    max_attempts: int = 20

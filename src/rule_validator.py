@@ -6,6 +6,9 @@ from collections import deque
 
 from .hex_grid import HexGrid, HexCoord
 
+import logging
+logger = logging.getLogger(__name__)
+
 class RuleValidator:
     """
     Validates rules and constraints for HexQueen puzzles.
@@ -28,7 +31,7 @@ class RuleValidator:
             True if no queens can see each other, False otherwise
         """
         queens = list(queen_positions.values())
-        print(f"Checking visibility for {len(queens)} queens")
+        logger.debug(f"Checking visibility for {len(queens)} queens")
         
         # Check each pair of queens
         for i in range(len(queens)):
@@ -38,16 +41,16 @@ class RuleValidator:
                 
                 # Check if queens are in the same line (same x, y, or z coordinate)
                 if queen1.x == queen2.x:
-                    #print(f"Queens at {queen1} and {queen2} share x-coordinate: {queen1.x}")
+                    #logger.debug(f"Queens at {queen1} and {queen2} share x-coordinate: {queen1.x}")
                     return False
                 if queen1.y == queen2.y:
-                    #print(f"Queens at {queen1} and {queen2} share y-coordinate: {queen1.y}")
+                    #logger.debug(f"Queens at {queen1} and {queen2} share y-coordinate: {queen1.y}")
                     return False
                 if queen1.z == queen2.z:
-                    #print(f"Queens at {queen1} and {queen2} share z-coordinate: {queen1.z}")
+                    #logger.debug(f"Queens at {queen1} and {queen2} share z-coordinate: {queen1.z}")
                     return False
         
-        print("All queens are correctly placed - no visibility conflicts")
+        logger.debug("All queens are correctly placed - no visibility conflicts")
         return True
     
     @staticmethod

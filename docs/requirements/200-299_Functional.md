@@ -10,6 +10,10 @@ Puzzles are generated based on a `radius` parameter. They must be valid HexQueen
 [See detailed requirements in 215_DLX_Solver.md](200-299_Functional/215_DLX_Solver.md)
 The system uses Knuth's Algorithm X with Dancing Links (DLX) to solve exact cover problems for hexagonal grid queen placement. Queen placement is formulated as an exact cover problem where constraints ensure no two queens attack each other.
 
+## Solvers and Refinement
+[See detailed requirements in 216_Solvers_and_Refinement.md](200-299_Functional/216_Solvers_and_Refinement.md)
+An exhaustive solver proves uniqueness, a human-style logical solver proves deducibility and rates difficulty, and a region refiner edits region boundaries until both hold.
+
 ## Output Formats
 [See detailed requirements in 220_Output_Formats.md](200-299_Functional/220_Output_Formats.md)
 The system should generate puzzles in PNG image format (with solution toggle), PDF document format (configurable puzzles per page), and JSON format for application integration.

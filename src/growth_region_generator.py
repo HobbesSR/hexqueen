@@ -10,6 +10,9 @@ from .hex_grid import HexGrid, HexCoord
 from .interfaces import IRegionGenerator
 from .rule_validator import RuleValidator
 
+import logging
+logger = logging.getLogger(__name__)
+
 class GrowthRegionGenerator(IRegionGenerator):
     """
     Generates regions for HexQueen puzzles using a growth-based algorithm.
@@ -49,7 +52,7 @@ class GrowthRegionGenerator(IRegionGenerator):
         self.region_frontiers = defaultdict(set)
         cell_regions = {}
         
-        print(f"Generating regions for {len(queen_positions)} queens")
+        logger.debug(f"Generating regions for {len(queen_positions)} queens")
         
         # Initialize regions with queen positions
         for region_id, queen_pos in queen_positions.items():
@@ -61,19 +64,19 @@ class GrowthRegionGenerator(IRegionGenerator):
                 if neighbor not in cell_regions:
                     self.region_frontiers[region_id].add(neighbor)
         
-        print(f"Initial frontiers: {[len(f) for f in self.region_frontiers.values()]}")
+        logger.debug(f"Initial frontiers: {[len(f) for f in self.region_frontiers.values()]}")
         
         # Grow regions until the entire board is covered
         if not self._grow_regions(grid, queen_positions, cell_regions):
-            print("Failed to grow regions: _grow_regions returned False")
+            logger.debug("Failed to grow regions: _grow_regions returned False")
             return {}  # Failed to grow regions
         
         # Validate the generated regions
         if not self.validate_regions(grid, cell_regions):
-            print("Failed to validate regions")
+            logger.debug("Failed to validate regions")
             return {}  # Regions are not valid
         
-        print(f"Successfully generated regions for all {len(grid.get_all_cells())} cells")
+        logger.debug(f"Successfully generated regions for all {len(grid.get_all_cells())} cells")
         return cell_regions
     
     def _grow_regions(self, grid: HexGrid, queen_positions: Dict[int, HexCoord],
@@ -89,7 +92,7 @@ class GrowthRegionGenerator(IRegionGenerator):
         Returns:
             True if regions were grown successfully, False otherwise
         """
-        print(f"Starting region growth. Total cells: {len(grid.get_all_cells())}, Assigned cells: {len(cell_regions)}")
+        logger.debug(f"Starting region growth. Total cells: {len(grid.get_all_cells())}, Assigned cells: {len(cell_regions)}")
         
         # Initialize regions with queen positions
         self.regions = defaultdict(set)
@@ -114,12 +117,12 @@ class GrowthRegionGenerator(IRegionGenerator):
         while unaffiliated_cells and iteration < max_iterations:
             iteration += 1
             if iteration % 10 == 0:
-                print(f"Iteration {iteration}: Assigned {len(cell_regions)}/{len(grid.get_all_cells())} cells")
+                logger.debug(f"Iteration {iteration}: Assigned {len(cell_regions)}/{len(grid.get_all_cells())} cells")
             
             # Find regions with non-empty adjacency sets
             active_regions = [r for r, adj in region_adjacency.items() if adj]
             if not active_regions:
-                print("Error: No regions have adjacent unaffiliated cells")
+                logger.debug("Error: No regions have adjacent unaffiliated cells")
                 return False
             
             # Randomly pick a region
@@ -145,7 +148,7 @@ class GrowthRegionGenerator(IRegionGenerator):
         
         # Check if we've assigned all cells
         if unaffiliated_cells:
-            print(f"Failed to assign all cells after {iteration} iterations")
+            logger.debug(f"Failed to assign all cells after {iteration} iterations")
             return False
         
         # Verify that all regions are contiguous
@@ -168,10 +171,10 @@ class GrowthRegionGenerator(IRegionGenerator):
             
             # If not all cells are visited, the region is not contiguous
             if len(visited) != len(cells):
-                print(f"Region {region_id} is not contiguous after growth")
+                logger.debug(f"Region {region_id} is not contiguous after growth")
                 return False
         
-        print("All regions are contiguous after growth")
+        logger.debug("All regions are contiguous after growth")
         return True
     
     def validate_regions(self, grid: HexGrid, cell_regions: Dict[HexCoord, int]) -> bool:
@@ -185,21 +188,21 @@ class GrowthRegionGenerator(IRegionGenerator):
         Returns:
             True if the regions are valid, False otherwise
         """
-        print(f"Validating regions. Total cells: {len(grid.get_all_cells())}, Assigned cells: {len(cell_regions)}")
+        logger.debug(f"Validating regions. Total cells: {len(grid.get_all_cells())}, Assigned cells: {len(cell_regions)}")
         
         # Check if all regions are contiguous
         is_contiguous = RuleValidator.check_region_contiguity(grid, cell_regions)
         if not is_contiguous:
-            print("Validation failed: Regions are not contiguous")
+            logger.debug("Validation failed: Regions are not contiguous")
             return False
         
         # Check if the puzzle meets the hexagonal grid constraints
         meets_constraints = RuleValidator.check_hex_grid_constraints(grid, cell_regions)
         if not meets_constraints:
-            print("Validation failed: Puzzle does not meet hexagonal grid constraints")
+            logger.debug("Validation failed: Puzzle does not meet hexagonal grid constraints")
             return False
         
-        print("Validation successful: All regions are valid")
+        logger.debug("Validation successful: All regions are valid")
         return True
     
     def get_region_sizes(self) -> Dict[int, int]:

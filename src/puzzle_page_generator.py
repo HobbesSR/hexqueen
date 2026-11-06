@@ -11,7 +11,6 @@ from typing import Dict, Optional, Tuple, List
 from src.hex_grid import HexGrid, HexCoord
 from src.puzzle_visualizer import (
     hex_to_pixel, draw_hexagon, draw_queen, get_region_color,
-    grow_regions_from_queens, check_regions_contiguity,
     calculate_recommended_queens, draw_hex_grid
 )
 from src.puzzle_generator import generate_puzzle_with_queens

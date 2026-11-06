@@ -27,6 +27,9 @@ class HexQueenPuzzle:
         self.grid = grid
         self.queen_positions = queen_positions
         self.cell_regions = cell_regions
+        # Hardest deduction (set size k, 1=easy .. 4=hard) needed to solve the
+        # puzzle by logic alone. None if it was never rated.
+        self.difficulty: Optional[int] = None
 
     def validate(self) -> bool:
         """
@@ -121,6 +124,8 @@ class HexQueenPuzzle:
             'region_seeds': region_seeds,
             'cell_regions': formatted_cell_regions
         }
+        if self.difficulty is not None:
+            data['difficulty'] = self.difficulty
         
         return json.dumps(data, indent=4)
     
@@ -154,4 +159,6 @@ class HexQueenPuzzle:
             x, y, z = int(coords[0]), int(coords[1]), int(coords[2])
             cell_regions[HexCoord(x, y, z)] = region_id
         
-        return cls(grid, queen_positions, cell_regions)
+        puzzle = cls(grid, queen_positions, cell_regions)
+        puzzle.difficulty = data.get('difficulty')
+        return puzzle

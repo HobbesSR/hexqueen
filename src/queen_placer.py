@@ -7,6 +7,9 @@ from collections import defaultdict, deque
 
 from .hex_grid import HexGrid, HexCoord
 
+import logging
+logger = logging.getLogger(__name__)
+
 class QueenPlacer:
     """
     Places queens on a hexagonal grid such that no two queens attack each other.
@@ -94,16 +97,16 @@ class QueenPlacer:
         Returns:
             bool: True if queens were placed successfully, False otherwise
         """
-        print(f"Attempting to place {self.num_queens} queens on a grid with radius {self.grid.radius}")
-        print(f"Total cells in grid: {len(self.grid.get_all_cells())}")
+        logger.debug(f"Attempting to place {self.num_queens} queens on a grid with radius {self.grid.radius}")
+        logger.debug(f"Total cells in grid: {len(self.grid.get_all_cells())}")
         
         # Try Dancing Links first (most efficient approach)
         try:
             if self.place_queens_dlx():
-                print("Successfully placed queens using Dancing Links (Algorithm X)")
+                logger.debug("Successfully placed queens using Dancing Links (Algorithm X)")
                 return True
         except Exception as e:
-            print(f"Dancing Links approach failed with error: {e}")                   
+            logger.debug(f"Dancing Links approach failed with error: {e}")                   
         
         return False
     
@@ -122,7 +125,7 @@ class QueenPlacer:
         """
         from .dancing_links import DancingLinks
         
-        print(f"Attempting to place {self.num_queens} queens using Dancing Links")
+        logger.debug(f"Attempting to place {self.num_queens} queens using Dancing Links")
         
         # Reset queen positions
         self.queen_positions = {}
@@ -140,8 +143,8 @@ class QueenPlacer:
         # If the user specified a different number, adjust it
         expected_queens = radius * 2 + 1
         if self.num_queens != expected_queens:
-            print(f"Warning: For a grid with radius {radius}, we should place {expected_queens} queens, not {self.num_queens}")
-            print(f"Adjusting num_queens to {expected_queens}")
+            logger.debug(f"Warning: For a grid with radius {radius}, we should place {expected_queens} queens, not {self.num_queens}")
+            logger.debug(f"Adjusting num_queens to {expected_queens}")
             self.num_queens = expected_queens
         
         # Define our primary constraints:
@@ -173,7 +176,7 @@ class QueenPlacer:
         
         # If we don't have enough valid cells, we can't place all queens
         if len(rows) < self.num_queens:
-            print(f"Not enough valid cells ({len(rows)}) to place {self.num_queens} queens")
+            logger.debug(f"Not enough valid cells ({len(rows)}) to place {self.num_queens} queens")
             return False
         
         # Create a binary matrix for the exact cover problem
@@ -223,7 +226,7 @@ class QueenPlacer:
             column_names.append(f"Z={z}")
         
         # Create the Dancing Links matrix
-        dlx = DancingLinks(num_columns, column_names)
+        dlx = DancingLinks(num_columns, column_names, rng=self.rng)
         
         # Add rows to the matrix
         # Each row represents placing a specific queen at a specific cell
@@ -254,7 +257,7 @@ class QueenPlacer:
                 row_to_queen_and_cell[row_idx] = (queen_id, cell)
                 row_idx += 1
         
-        print(f"Created DLX matrix with {row_idx} rows and {num_columns} columns")
+        logger.debug(f"Created DLX matrix with {row_idx} rows and {num_columns} columns")
         
         # Define a callback to process the solution
         def solution_callback(solution):
@@ -265,9 +268,9 @@ class QueenPlacer:
                 self.queen_positions[queen_id] = cell
             
             # Print the solution for debugging
-            print(f"Found solution with {len(self.queen_positions)} queens:")
+            logger.debug(f"Found solution with {len(self.queen_positions)} queens:")
             for queen_id, pos in sorted(self.queen_positions.items()):
-                print(f"  Queen {queen_id}: {pos}")
+                logger.debug(f"  Queen {queen_id}: {pos}")
             
             # Verify the solution
             valid = True
@@ -275,16 +278,16 @@ class QueenPlacer:
                 for other_id, other_pos in self.queen_positions.items():
                     if queen_id != other_id:
                         if (pos.x == other_pos.x or pos.y == other_pos.y or pos.z == other_pos.z):
-                            print(f"Invalid solution: Queens at {pos} and {other_pos} can attack each other!")
+                            logger.debug(f"Invalid solution: Queens at {pos} and {other_pos} can attack each other!")
                             valid = False
                             break
                 if not valid:
                     break
             
             if valid:
-                print("Solution is valid!")
+                logger.debug("Solution is valid!")
             else:
-                print("Solution is invalid!")
+                logger.debug("Solution is invalid!")
             
             # Only return True if the solution is valid and we have the right number of queens
             return valid and len(self.queen_positions) == self.num_queens
@@ -293,13 +296,13 @@ class QueenPlacer:
         success = dlx.search(0, solution_callback)
         
         if success:
-            print(f"Successfully placed {self.num_queens} queens using Dancing Links")
+            logger.debug(f"Successfully placed {self.num_queens} queens using Dancing Links")
             
             # Update attacked cells for consistency
             self.update_attacked_cells()
             return True
         else:
-            print(f"Failed to place queens using Dancing Links")
+            logger.debug(f"Failed to place queens using Dancing Links")
             return False
     
     def get_queen_positions(self) -> Dict[int, HexCoord]:

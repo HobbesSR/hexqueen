@@ -108,7 +108,7 @@ def demonstrate_queen_placement(grid_radius: int, seed: Optional[int] = None):
     
     return
 
-def demonstrate_reverse_engineering(grid_radius: int, seed: Optional[int] = None):
+def demonstrate_reverse_engineering(grid_radius: int, seed: Optional[int] = None, max_difficulty: int = 3):
     """
     Demonstrate the puzzle generation process using the new architecture.
     
@@ -131,6 +131,7 @@ def demonstrate_reverse_engineering(grid_radius: int, seed: Optional[int] = None
         grid=grid,
         num_regions=num_regions,
         seed=seed,
+        max_difficulty=max_difficulty,
     )
     
     # Generate a complete puzzle
@@ -139,7 +140,7 @@ def demonstrate_reverse_engineering(grid_radius: int, seed: Optional[int] = None
         print(f"Failed to generate a puzzle with radius {grid_radius} and {num_regions} regions.")
         return
     
-    print("Puzzle generated successfully.")
+    print(f"Puzzle generated: unique solution, solvable by logic (difficulty {hex_queen_puzzle.difficulty}/4).")
     solution = hex_queen_puzzle.cell_regions
     queen_positions = hex_queen_puzzle.queen_positions
     
@@ -184,8 +185,13 @@ def main():
     parser.add_argument("--radius", type=int, default=3, help="Radius of the hexagonal grid")
     parser.add_argument("--seed", type=int, default=None, help="Random seed for reproducibility")
     parser.add_argument("--output", type=str, default=".", help="Output directory for saved images")
+    parser.add_argument("--max-difficulty", type=int, default=3, choices=[1, 2, 3, 4],
+                        help="Hardest deduction a solver may need (1=easy .. 4=hard)")
+    parser.add_argument("--verbose", action="store_true", help="Show detailed generator logging")
     parser.add_argument("--generate-puzzle", action="store_true", help="Generate a complete puzzle using the region generator")
     args = parser.parse_args()
+    import logging
+    logging.basicConfig(level=logging.DEBUG if args.verbose else logging.WARNING, format="%(name)s: %(message)s")
     
     args.regions = calculate_recommended_queens(args.radius)
     print(f"Using calculated number of regions: {args.regions}")
@@ -194,7 +200,7 @@ def main():
         os.makedirs(args.output)
     
     if args.generate_puzzle:
-        demonstrate_reverse_engineering(args.radius, args.seed)
+        demonstrate_reverse_engineering(args.radius, args.seed, args.max_difficulty)
     else:
         # Default behavior: demonstrate queen placement
         demonstrate_queen_placement(args.radius, args.seed)

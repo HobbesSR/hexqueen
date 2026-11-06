@@ -13,6 +13,7 @@ The JSON output format represents a hexagonal queen puzzle with its regions and 
 {
   "grid_radius": <int>,                   // Radius of the hexagonal grid
   "num_regions": <int>,                   // Number of regions/queens
+  "difficulty": <int>,                    // OPTIONAL: 1 (easy) .. 4 (hard); hardest deduction needed
   "region_seeds": {
     "<region_id>": [<x>, <y>, <z>],       // Queen position for each region in cube coordinates
     "...": [...]
@@ -28,6 +29,7 @@ The JSON output format represents a hexagonal queen puzzle with its regions and 
 
 - **grid_radius**: The radius of the hexagonal grid, determining its size.
 - **num_regions**: The total number of regions in the puzzle, equal to the number of queens.
+- **difficulty** (optional): Hardest logical deduction needed to solve the puzzle (set size *k*, see 216.2). Absent if the puzzle was not rated.
 - **region_seeds**: Maps region IDs to the positions of their respective queens. Each queen serves as the "seed" from which a region grows in the puzzle generation process. Positions are represented as cube coordinate arrays [x, y, z].
 - **cell_regions**: Maps cell positions to their region IDs. Cell positions are represented as string-formatted cube coordinates "[x, y, z]".
 

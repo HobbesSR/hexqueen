@@ -2,7 +2,17 @@
 
 A hexagonal grid puzzle generator and solver.
 
-Key features include puzzle generation based on radius, ensuring puzzle validity, unique solutions, and logical solvability. The project supports multiple output formats, including PNG images, PDF documents, and JSON data for application integration.
+Key features include puzzle generation based on radius, ensuring puzzle validity, **guaranteed unique solutions**, and **guaranteed logical solvability** (with a difficulty rating). The project supports multiple output formats, including PNG images, PDF documents, and JSON data for application integration.
+
+## How Puzzles Are Generated
+
+1. **Queens** - `QueenPlacer` (DLX) picks a random non-attacking layout: the hidden solution.
+2. **Regions** - `GrowthRegionGenerator` grows one contiguous region around each queen.
+3. **Refinement** - `RegionRefiner` hill-climbs on region boundaries, scoring each edit with the solvers
+   until the puzzle has exactly one solution *and* can be solved by deduction alone.
+   (Random regions alone are unique only ~1 time in 60 at radius 5; refinement succeeds essentially always.)
+4. **Rating** - `LogicalSolver` reports the hardest deduction needed (set size *k*, 1 = easy ... 4 = hard),
+   stored as the optional `difficulty` field in the JSON.
 
 ## Solving Approach
 
@@ -19,9 +29,11 @@ Component relationships visualized through key interactions:
 graph TD
     A[main.py] --> B[HexGrid]
     A --> C[PuzzleGenerator]
-    A --> D[Solver]
     C --> E[QueenPlacer]
     E --> I[DancingLinks]
+    C --> F[GrowthRegionGenerator]
+    C --> R[RegionRefiner]
+    R --> S[solver.py: count_solutions + LogicalSolver]
 ```
 
 Detailed architecture documentation:
@@ -58,5 +70,9 @@ docs/
 # Install dependencies
 pip install -r requirements.txt
 
-# Generate and solve a puzzle
-python src/main.py --radius 5 --output-format json
+# Generate a unique, logically solvable puzzle (writes PNGs + puzzle.json)
+python run.py --radius 5 --generate-puzzle --seed 1 --max-difficulty 3
+
+# Run the tests
+python -m unittest discover tests
+```

@@ -7,6 +7,9 @@ hexagonal grid queen placement.
 """
 from typing import List, Dict, Set, Optional, Tuple, Callable
 
+import logging
+logger = logging.getLogger(__name__)
+
 
 class DancingNode:
     """A node in the Dancing Links matrix."""
@@ -38,7 +41,7 @@ class DancingLinks:
     This class provides methods to solve exact cover problems efficiently.
     """
     
-    def __init__(self, num_columns: int, column_names: List[str] = None):
+    def __init__(self, num_columns: int, column_names: List[str] = None, rng=None):
         """
         Initialize the Dancing Links structure.
         
@@ -46,6 +49,8 @@ class DancingLinks:
             num_columns: Number of columns in the matrix
             column_names: Optional names for the columns
         """
+        import random
+        self.rng = rng or random.Random()
         # Create the header node
         self.header = ColumnNode(-1, "header")
         
@@ -178,7 +183,7 @@ class DancingLinks:
         
         # If the matrix is empty, we've found a solution
         if self.header.right == self.header:
-            print(f"Found a solution with {len(self.solution)} rows")
+            logger.debug(f"Found a solution with {len(self.solution)} rows")
             if self.solution_callback:
                 return self.solution_callback(self.solution)
             return True
@@ -188,7 +193,7 @@ class DancingLinks:
         
         if column.size == 0:
             # If the column has no 1s, we can't cover it, so this branch is a dead end
-            print(f"Column {column.name} has size 0, backtracking")
+            logger.debug(f"Column {column.name} has size 0, backtracking")
             return False
         
         # Cover the chosen column
@@ -252,8 +257,7 @@ class DancingLinks:
         # If we have multiple columns with the same minimum size,
         # choose one randomly to introduce non-determinism
         if len(min_columns) > 1:
-            import random
-            return random.choice(min_columns)
+            return self.rng.choice(min_columns)
         elif min_columns:
             return min_columns[0]
         else:
