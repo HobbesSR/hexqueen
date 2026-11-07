@@ -197,6 +197,35 @@ def serve_game(port: int) -> None:
             print("\nStopped.")
 
 
+def package_game(out_path: str) -> str:
+    """Zip the web game for HTML hosts such as itch.io: index.html at the root, tests left out,
+    and the project's licence and third-party notices included."""
+    import zipfile
+
+    root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    web_dir = os.path.join(root, "web")
+    entries = []
+    for dirpath, dirnames, filenames in os.walk(web_dir):
+        dirnames[:] = sorted(d for d in dirnames if d != "test" and not d.startswith("."))
+        for name in sorted(filenames):
+            if name.startswith("."):
+                continue
+            full = os.path.join(dirpath, name)
+            entries.append((full, os.path.relpath(full, web_dir).replace(os.sep, "/")))
+    for name in ("LICENSE", "THIRD-PARTY-NOTICES.txt"):
+        entries.append((os.path.join(root, name), name))
+
+    out_path = os.path.abspath(out_path)
+    os.makedirs(os.path.dirname(out_path), exist_ok=True)
+    with zipfile.ZipFile(out_path, "w", zipfile.ZIP_DEFLATED) as zf:
+        for full, arc in entries:
+            zf.write(full, arc)
+    print(f"Packaged {len(entries)} files into {out_path}")
+    for _, arc in entries:
+        print(f"  {arc}")
+    return out_path
+
+
 def main():
     """Main function to parse arguments and run the program."""
     parser = argparse.ArgumentParser(description="Hexagonal Puzzle Generator")
@@ -209,8 +238,13 @@ def main():
     parser.add_argument("--generate-puzzle", action="store_true", help="Generate a complete puzzle using the region generator")
     parser.add_argument("--play", action="store_true", help="Serve the playable web game and open it in a browser")
     parser.add_argument("--port", type=int, default=8000, help="Port for --play (default 8000)")
+    parser.add_argument("--package", nargs="?", const=os.path.join("dist", "hexqueen-web.zip"), metavar="ZIP",
+                        help="Zip the web game for itch.io (default dist/hexqueen-web.zip)")
     args = parser.parse_args()
 
+    if args.package:
+        package_game(args.package)
+        return
     if args.play:
         serve_game(args.port)
         return

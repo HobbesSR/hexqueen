@@ -121,7 +121,7 @@
   </div>
 
   <footer class="foot">
-    <button type="button" class="link-btn" id="btn-code" title="Copy this puzzle's code">Puzzle <span id="puzzle-code">&nbsp;</span></button>
+    <button type="button" class="link-btn" id="btn-code" title="Share this puzzle or play one from a code">Puzzle <span id="puzzle-code">&nbsp;</span></button>
     <span class="foot-rating" id="foot-rating"></span>
   </footer>
 </div>
@@ -147,6 +147,27 @@
     </ul>
     <p class="fine">Every puzzle has exactly one solution, and you can always reach it by deduction. No guessing needed.</p>
     <button class="btn btn-primary btn-wide" value="close">Play</button>
+  </form>
+</dialog>
+
+<!-- Puzzle code -->
+<dialog class="sheet" id="dlg-code" aria-labelledby="code-title">
+  <form method="dialog" class="sheet-inner" id="code-form">
+    <h2 id="code-title">Puzzle codes</h2>
+    <p class="fine">The same code always builds the same board, so a friend can play the puzzle you just played.</p>
+    <div class="code-current" id="code-current-row">
+      <span class="code-chip" id="code-current"></span>
+      <button type="button" class="btn" id="code-copy">Copy code</button>
+    </div>
+    <label class="code-field" for="code-input"><strong>Play a code</strong>
+      <input type="text" id="code-input" autocomplete="off" autocapitalize="off" spellcheck="false"
+             placeholder="e.g. hard-k3x9qa" enterkeyhint="go">
+    </label>
+    <p class="import-error" id="code-error" hidden></p>
+    <div class="win-actions">
+      <button type="button" class="btn" id="code-cancel">Cancel</button>
+      <button type="submit" class="btn btn-primary" id="code-play">Play</button>
+    </div>
   </form>
 </dialog>
 

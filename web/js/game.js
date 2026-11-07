@@ -15,6 +15,9 @@
   const WEEKDAYS = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
   const MONTHS = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
   const EMPTY = 0, CROSS = 1, QUEEN = 2;
+  // Where people can play, appended to shared results. Embedded hosts such as itch.io run the game
+  // in a cross-origin iframe, so its own URL (and any #code in it) is neither visible nor shareable.
+  const HOME_URL = '';
 
   // --------------------------------------------------------------------
   // Persistence (per-viewer convenience only; the game works without it)
@@ -63,6 +66,13 @@
     m = /^(easy|medium|hard|expert)-([a-z0-9]{1,16})$/.exec(code);
     if (m) return { slot: m[1], level: m[1], seed: m[2], code };
     return null;
+  }
+  // Accepts what people paste: "Hard-K3X9QA", "#hard-k3x9qa", or a whole link ending in "#hard-k3x9qa".
+  function normalizeCode(text) {
+    let s = String(text || '').trim();
+    const hash = s.lastIndexOf('#');
+    if (hash >= 0) s = s.slice(hash + 1);
+    return s.trim().toLowerCase();
   }
 
   // --------------------------------------------------------------------
@@ -747,8 +757,9 @@
   function resultText() {
     const ms = currentElapsed();
     const lvl = game.imported ? game.puzzle.difficulty : LEVEL_LABEL[game.level];
-    const what = game.slot === 'daily' ? `Daily ${game.date} (${lvl})` : `${lvl} #${game.code}`;
-    return `🐝 HexQueen ${what}: solved in ${fmtTime(ms)}` + (game.hints ? ` with ${game.hints} hint${game.hints > 1 ? 's' : ''}` : ' with no hints');
+    const what = game.slot === 'daily' ? `Daily ${game.date} (${lvl})` : `${lvl} (code ${game.code})`;
+    return `🐝 HexQueen ${what}: solved in ${fmtTime(ms)}` + (game.hints ? ` with ${game.hints} hint${game.hints > 1 ? 's' : ''}` : ' with no hints')
+      + (HOME_URL ? `\n${HOME_URL}` : '');
   }
 
   function renderStats() {
@@ -854,8 +865,29 @@
   $('#hint-close').addEventListener('click', () => { view.hint = null; refresh(); });
   $('#hint-apply').addEventListener('click', () => { const h = view.hint; if (h && h.apply) h.apply(); });
   $('#btn-code').addEventListener('click', () => {
-    if (game.imported) return;
-    copyText(game.code, 'Puzzle code copied: open the page with #' + game.code + ' to play it.');
+    $('#code-current-row').hidden = game.imported;
+    $('#code-current').textContent = game.imported ? '' : game.code;
+    $('#code-input').value = '';
+    $('#code-error').hidden = true;
+    openDialog('#dlg-code');
+  });
+  $('#code-copy').addEventListener('click', () => {
+    copyText(game.code, 'Puzzle code copied. Paste it under Puzzle codes to play it.');
+  });
+  $('#code-cancel').addEventListener('click', () => $('#dlg-code').close());
+  $('#code-form').addEventListener('submit', (e) => {
+    e.preventDefault();
+    const raw = $('#code-input').value;
+    const code = normalizeCode(raw);
+    const err = $('#code-error');
+    if (!code) { err.textContent = 'Type or paste a puzzle code first.'; err.hidden = false; return; }
+    if (!parseCode(code)) {
+      err.textContent = 'That is not a puzzle code. Codes look like hard-k3x9qa or daily-2026-11-07.';
+      err.hidden = false;
+      return;
+    }
+    $('#dlg-code').close();
+    if (!(game && code === game.code)) loadPuzzle(code);
   });
   $('#btn-rules').addEventListener('click', () => { renderRulesDemo(); openDialog('#dlg-rules'); });
   $('#btn-stats').addEventListener('click', () => { renderStats(); openDialog('#dlg-stats'); });
@@ -902,7 +934,7 @@
   });
 
   window.addEventListener('hashchange', () => {
-    const code = location.hash.slice(1);
+    const code = normalizeCode(location.hash);
     if (game && code === game.code) return;
     if (parseCode(code)) loadPuzzle(code);
   });
@@ -912,7 +944,7 @@
   // --------------------------------------------------------------------
   function boot(hotData) {
     if (hotData && hotData.store) store = normalizeStore(hotData.store);
-    const fromHash = location.hash.slice(1);
+    const fromHash = normalizeCode(location.hash);
     if (!(fromHash && loadPuzzle(fromHash))) openSlot(store.slot || 'daily');
     if (!store.seenRules) { renderRulesDemo(); openDialog('#dlg-rules'); }
   }
