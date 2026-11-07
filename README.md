@@ -28,11 +28,24 @@ python run.py --play          # serves web/ on http://127.0.0.1:8000 and opens i
   Mistakes (a wrong queen, a crossed-out solution cell) are pointed out first.
 - Tap to cycle × / queen, drag to mark many ×, undo/redo, auto-cross, clash highlighting, a timer,
   statistics, keyboard play, light and dark themes, and progress that survives reloads.
-- **Shareable puzzles**: every puzzle has a code such as `#hard-k3x9qa`; the same code always builds the same board.
+- **Shareable puzzles**: every puzzle has a code such as `hard-k3x9qa`; the same code always builds the same board.
+  Click the code under the board to copy it or to type in a friend's. Opening the page with `#hard-k3x9qa`
+  also works when the game is not embedded.
 - **Python puzzles**: Settings → *Play a puzzle from the Python generator* accepts a `puzzle.json`.
 
 Engine: `web/js/hexqueen-core.js` (geometry, exhaustive solver, human-style logical solver, generator).
 Tests: `node --test web/test/core.test.js`.
+
+### Publishing on itch.io
+
+```bash
+python run.py --package       # writes dist/hexqueen-web.zip (index.html at the root, licence included)
+```
+
+Upload the zip as an HTML project and tick "This file will be played in the browser". An embed of
+about 960×800 with "Mobile friendly" and the fullscreen button enabled suits the layout. itch.io runs
+the game in a cross-origin iframe, so the page URL is not shareable; players share puzzle codes
+instead. Set `HOME_URL` in `web/js/game.js` to the itch.io page so shared results link back to it.
 
 ### How the web generator works
 
@@ -118,3 +131,11 @@ python run.py --radius 5 --generate-puzzle --seed 1 --max-difficulty 3
 # Run the tests
 python -m unittest discover tests
 ```
+
+## License
+
+The project's original code and original assets are licensed under the [MIT License](LICENSE).
+Third-party dependencies, libraries and assets keep their own licences and notices. Anything the
+project redistributes is listed with its licence text in [THIRD-PARTY-NOTICES.txt](THIRD-PARTY-NOTICES.txt)
+(currently nothing); the audit and the policy for adding new material are in
+[docs/third-party-licenses.md](docs/third-party-licenses.md).

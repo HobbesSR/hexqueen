@@ -1,0 +1,27 @@
+HexQueen third-party notices (audited 2026-11-07)
+
+The project's own code and assets are under the MIT License in LICENSE. This file lists the
+third-party material the project redistributes, with each one's licence and notices; their
+licences are not changed by the project's. docs/third-party-licenses.md has the audit.
+
+==============================================================================
+Redistributed
+==============================================================================
+
+None. The web game (web/) and the packaged zip contain only the project's own code, markup,
+styles and SVG artwork.
+
+==============================================================================
+Used but not redistributed
+==============================================================================
+
+These are fetched or installed by the player or developer from their publishers. No copy is
+included in this repository or in the packaged game, so no notice is reproduced here.
+
+- Gabarito and Young Serif fonts (SIL Open Font License 1.1). The game's stylesheet asks
+  Google Fonts (fonts.googleapis.com) to serve them to the player's browser.
+- matplotlib (Matplotlib License, PSF-based) and NumPy (BSD-3-Clause). Installed by
+  developers from requirements.txt to run the Python generator.
+
+If any of these is ever bundled (for example, font files copied into web/), its licence text
+and copyright notices must be added to this file in the same change.
