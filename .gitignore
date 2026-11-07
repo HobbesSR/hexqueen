@@ -2,4 +2,5 @@
 *.png
 __pycache__/
 *.pyc
-*.jsondist/
+*.json
+dist/
