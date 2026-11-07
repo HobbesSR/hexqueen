@@ -14,12 +14,21 @@
 <!--APP-START-->
 <svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
   <defs>
-    <symbol id="sym-crown" viewBox="-1 -1 2 2">
-      <path d="M-0.62 0.36 L-0.74 -0.34 L-0.34 -0.02 L0 -0.56 L0.34 -0.02 L0.74 -0.34 L0.62 0.36 Z" fill="currentColor"/>
-      <rect x="-0.62" y="0.46" width="1.24" height="0.17" rx="0.05" fill="currentColor"/>
-      <circle cx="-0.76" cy="-0.42" r="0.1" fill="currentColor"/>
-      <circle cx="0" cy="-0.66" r="0.11" fill="currentColor"/>
-      <circle cx="0.76" cy="-0.42" r="0.1" fill="currentColor"/>
+    <!-- Queen bee: crowned head, thorax, translucent wings, striped abdomen, stinger. -->
+    <clipPath id="clip-abdomen"><ellipse cx="0" cy="0.26" rx="0.3" ry="0.42"/></clipPath>
+    <symbol id="sym-queen" viewBox="-1 -1 2 2">
+      <ellipse cx="-0.38" cy="-0.3" rx="0.36" ry="0.19" transform="rotate(-24 -0.38 -0.3)" fill="currentColor" fill-opacity="0.42"/>
+      <ellipse cx="0.38" cy="-0.3" rx="0.36" ry="0.19" transform="rotate(24 0.38 -0.3)" fill="currentColor" fill-opacity="0.42"/>
+      <g clip-path="url(#clip-abdomen)" fill="currentColor">
+        <rect x="-0.4" y="-0.2" width="0.8" height="0.2"/>
+        <rect x="-0.4" y="0.09" width="0.8" height="0.15"/>
+        <rect x="-0.4" y="0.33" width="0.8" height="0.15"/>
+        <rect x="-0.4" y="0.57" width="0.8" height="0.15"/>
+      </g>
+      <path d="M-0.07 0.66 L0 0.86 L0.07 0.66 Z" fill="currentColor"/>
+      <circle cx="0" cy="-0.27" r="0.17" fill="currentColor"/>
+      <circle cx="0" cy="-0.55" r="0.13" fill="currentColor"/>
+      <path d="M-0.17 -0.7 L-0.22 -0.92 L-0.09 -0.8 L0 -0.97 L0.09 -0.8 L0.22 -0.92 L0.17 -0.7 Z" fill="currentColor"/>
     </symbol>
     <symbol id="sym-x" viewBox="-1 -1 2 2">
       <path d="M-0.5 -0.5 L0.5 0.5 M0.5 -0.5 L-0.5 0.5" fill="none" stroke="currentColor" stroke-width="0.2" stroke-linecap="round"/>
@@ -36,7 +45,7 @@
     <h1 class="wordmark">
       <svg class="wordmark-icon" viewBox="-1.05 -1.05 2.1 2.1" aria-hidden="true">
         <polygon points="0,-1 0.866,-0.5 0.866,0.5 0,1 -0.866,0.5 -0.866,-0.5" class="wm-hex"/>
-        <use href="#sym-crown" x="-0.62" y="-0.6" width="1.24" height="1.24" class="wm-crown"/>
+        <use href="#sym-queen" x="-0.8" y="-0.78" width="1.6" height="1.6" class="wm-crown"/>
       </svg>
       <span>HexQueen</span>
     </h1>
@@ -68,7 +77,7 @@
     </div>
     <div class="status-right">
       <div class="queens-count" id="queens-count" title="Queens placed">
-        <svg viewBox="-1 -1 2 2" aria-hidden="true"><use href="#sym-crown" x="-1" y="-1" width="2" height="2"/></svg>
+        <svg viewBox="-1 -1 2 2" aria-hidden="true"><use href="#sym-queen" x="-1" y="-1" width="2" height="2"/></svg>
         <span id="queens-num">0/0</span>
       </div>
       <div class="timer" id="timer" title="Time">0:00</div>
@@ -125,13 +134,13 @@
     <h2 id="rules-title">How to play</h2>
     <div class="rules-demo" id="rules-demo"></div>
     <ol class="rules-list">
-      <li>Place one <strong>queen</strong> in every coloured region.</li>
+      <li>Place one <strong>queen bee</strong> in every coloured region.</li>
       <li>Every <strong>row</strong> and every <strong>diagonal</strong> in both directions holds exactly one queen.</li>
       <li>So no two queens share a region or a line, and queens never touch.</li>
     </ol>
     <h3>Controls</h3>
     <ul class="controls-list">
-      <li><span class="kbd">Tap</span> once for <span class="ix">×</span>, twice for a queen, three times to clear.</li>
+      <li><span class="kbd">Tap</span> once for <span class="ix">×</span>, twice for a queen bee, three times to clear.</li>
       <li><span class="kbd">Drag</span> across cells to mark many × at once.</li>
       <li><span class="kbd">Right-click</span> toggles × with a mouse.</li>
       <li><span class="kbd">Arrows</span> move, <span class="kbd">Space</span> cycles, <span class="kbd">X</span>, <span class="kbd">Q</span>, <span class="kbd">H</span> hint, <span class="kbd">Ctrl Z</span> undo.</li>
@@ -184,7 +193,7 @@
 <!-- Win -->
 <dialog class="sheet win" id="dlg-win" aria-labelledby="win-title">
   <form method="dialog" class="sheet-inner">
-    <svg class="win-crown" viewBox="-1 -1 2 2" aria-hidden="true"><use href="#sym-crown" x="-1" y="-1" width="2" height="2"/></svg>
+    <svg class="win-crown" viewBox="-1 -1 2 2" aria-hidden="true"><use href="#sym-queen" x="-1" y="-1" width="2" height="2"/></svg>
     <h2 id="win-title">Solved</h2>
     <p class="win-sub" id="win-sub"></p>
     <dl class="win-stats" id="win-stats"></dl>

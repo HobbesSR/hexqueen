@@ -251,10 +251,10 @@
     if (!kind) { m.style.display = 'none'; return; }
     m.style.display = '';
     const queenish = kind === 'queen' || kind === 'ghost-queen';
-    const size = queenish ? 1.12 : 0.62;
-    m.setAttribute('href', queenish ? '#sym-crown' : '#sym-x');
+    const size = queenish ? 1.45 : 0.62;
+    m.setAttribute('href', queenish ? '#sym-queen' : '#sym-x');
     m.setAttribute('x', (c.px - size / 2).toFixed(4));
-    m.setAttribute('y', (c.py - size / 2 + (queenish ? 0.02 : 0)).toFixed(4));
+    m.setAttribute('y', (c.py - size / 2 + (queenish ? 0.03 : 0)).toFixed(4));
     m.setAttribute('width', size);
     m.setAttribute('height', size);
     m.setAttribute('class', 'mark ' + ({ queen: 'queen', cross: '', auto: 'auto', 'ghost-queen': 'ghost', 'ghost-x': 'ghost' })[kind]);
@@ -733,7 +733,7 @@
   function showWin(ms, newBest) {
     if (!game.solved) return;
     const lvl = game.imported ? game.puzzle.difficulty : LEVEL_LABEL[game.level];
-    $('#win-title').textContent = newBest ? 'New best time' : ['Solved', 'Long live the queens', 'Brilliant', 'Crowned'][Math.floor(Math.random() * 4)];
+    $('#win-title').textContent = newBest ? 'New best time' : ['Solved', 'Long live the queens', 'The hive is in order', 'Un-bee-lievable'][Math.floor(Math.random() * 4)];
     $('#win-sub').textContent = puzzleTitle() + (game.slot === 'daily' ? ' · ' + lvl : '');
     const st = store.stats[game.imported ? 'custom' : game.level] || {};
     const items = [['Time', fmtTime(ms)], ['Hints', String(game.hints)]];
@@ -748,7 +748,7 @@
     const ms = currentElapsed();
     const lvl = game.imported ? game.puzzle.difficulty : LEVEL_LABEL[game.level];
     const what = game.slot === 'daily' ? `Daily ${game.date} (${lvl})` : `${lvl} #${game.code}`;
-    return `👑 HexQueen ${what}: solved in ${fmtTime(ms)}` + (game.hints ? ` with ${game.hints} hint${game.hints > 1 ? 's' : ''}` : ' with no hints');
+    return `🐝 HexQueen ${what}: solved in ${fmtTime(ms)}` + (game.hints ? ` with ${game.hints} hint${game.hints > 1 ? 's' : ''}` : ' with no hints');
   }
 
   function renderStats() {
@@ -822,9 +822,9 @@
       const m = e.marks[i];
       if (i === center) {
         m.style.display = '';
-        m.setAttribute('href', '#sym-crown');
-        m.setAttribute('x', c.px - 0.56); m.setAttribute('y', c.py - 0.54);
-        m.setAttribute('width', 1.12); m.setAttribute('height', 1.12);
+        m.setAttribute('href', '#sym-queen');
+        m.setAttribute('x', c.px - 0.725); m.setAttribute('y', c.py - 0.7);
+        m.setAttribute('width', 1.45); m.setAttribute('height', 1.45);
         m.setAttribute('class', 'mark');
       } else if (geom.lx[i] === geom.lx[center] || geom.ly[i] === geom.ly[center] || geom.lz[i] === geom.lz[center]) {
         m.style.display = '';
