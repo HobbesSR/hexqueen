@@ -17,7 +17,7 @@
   const EMPTY = 0, CROSS = 1, QUEEN = 2;
   // Where people can play, appended to shared results. Embedded hosts such as itch.io run the game
   // in a cross-origin iframe, so its own URL (and any #code in it) is neither visible nor shareable.
-  const HOME_URL = '';
+  const HOME_URL = 'https://hobbesgaming.itch.io/hexqueen';
 
   // --------------------------------------------------------------------
   // Persistence (per-viewer convenience only; the game works without it)

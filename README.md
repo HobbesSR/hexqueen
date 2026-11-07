@@ -38,6 +38,8 @@ Tests: `node --test web/test/core.test.js`.
 
 ### Publishing on itch.io
 
+Live at https://hobbesgaming.itch.io/hexqueen.
+
 ```bash
 python run.py --package       # writes dist/hexqueen-web.zip (index.html at the root, licence included)
 ```
